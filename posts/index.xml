@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on R13</title>
+    <link>http://r13.tk/posts/</link>
+    <description>Recent content in Posts on R13</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 25 Nov 2018 20:18:33 +0100</lastBuildDate>
+    
+	<atom:link href="http://r13.tk/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Reply challenge - wysiNwyg</title>
+      <link>http://r13.tk/posts/wysinwyg/</link>
+      <pubDate>Sun, 25 Nov 2018 20:18:33 +0100</pubDate>
+      
+      <guid>http://r13.tk/posts/wysinwyg/</guid>
+      <description>What You See Is Not What You Get è la sfida da 400 punti nella sezione binary della CTF Reply.
+Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.
+Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. download
+Se proviamo a debuggarlo il programma risponde: No debugger please! L&amp;rsquo;eseguibile controlla che l&amp;rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema qui meglio descritta.</description>
+    </item>
+    
+  </channel>
+</rss>
