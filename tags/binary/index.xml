@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Binary on R13</title>
-    <link>http://r13.tk/tags/binary/</link>
+    <link>https://rad-13.github.io/tags/binary/</link>
     <description>Recent content in Binary on R13</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 25 Nov 2018 20:18:33 +0100</lastBuildDate>
     
-	<atom:link href="http://r13.tk/tags/binary/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://rad-13.github.io/tags/binary/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Reply challenge - wysiNwyg</title>
-      <link>http://r13.tk/posts/wysinwyg/</link>
+      <link>https://rad-13.github.io/posts/wysinwyg/</link>
       <pubDate>Sun, 25 Nov 2018 20:18:33 +0100</pubDate>
       
-      <guid>http://r13.tk/posts/wysinwyg/</guid>
+      <guid>https://rad-13.github.io/posts/wysinwyg/</guid>
       <description>What You See Is Not What You Get è la sfida da 400 punti nella sezione binary della CTF Reply.
 Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.
 Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. download
