@@ -114,9 +114,9 @@ Analizzando le funzioni presenti nel codice (comando afl su radare) si nota che
 sono presenti altre entry possibili per il programma, la entry4 è interessante.<br />
 Essa rappresenta la entry più pesante di tutto il programma, essa è letteralmente disseminata di controlli inutili sulla lunghezza dell&rsquo;input o sulla posizione di eventuali caratteri a seguito di manipolazioni più o meno complesse (quali xor, shift ed altro), tutte queste parti (benchè rappresentino la quasi totalità del codice) sono state saltate tramite il comado <code>dr rip=&lt;indirizzo&gt;</code>
 ovvero ho forzato l&rsquo;istruction pointer a saltare dove mi pareva, in pratica fuori dai controlli.<br />
-Tolte tali parti del programma all&rsquo;inizio della entry possiamo notare una serie di variabili locali esse rappresentano la seguente sequenza:<br />
-<code>]gl]wlu]lAaj@lAl'l@jp\]TARGF_RGZ\]@j\FYF@GD\]C</code><br />
-Sono stati omessi alcuni valori non visualizzabili a schermo.<br />
+Tolte tali parti del programma all&rsquo;inizio della entry possiamo notare una serie di variabili locali esse rappresentano la seguente sequenza:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">]gl]wlu]lAaj@lAl&#39;l@jp\]TARGF_RGZ\]@j\FYF@GD\]C</code></pre></div>
+<p>Sono stati omessi alcuni valori non visualizzabili a schermo.<br />
 Pare essere un stringa cifrata, la stringa è di 46byte, ma dai controlli effettuati nel codice la password è composta da 22 caratteri, c&rsquo;è dunque qualcosa in più.<br />
 Il metodo con cui tale stringa viene cifrata è hardcodato all&rsquo;interno dell&rsquo;eseguitile, ed esso è un semplice xor tra l&rsquo;input e il valore <strong>0x33</strong>.<br />
 La soluzione è quindi:</p>
