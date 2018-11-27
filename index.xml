@@ -22,6 +22,18 @@
     </item>
     
     <item>
+      <title>CSAW 2018 - get_it</title>
+      <link>https://rad-13.github.io/posts/get_it/</link>
+      <pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate>
+      
+      <guid>https://rad-13.github.io/posts/get_it/</guid>
+      <description>_getit è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
+Il binario fornito è un ELF64. Download
+Appena scaricato possiamo analizzarlo utilizzano rabin2, un tool molto utile al fine di ottenere informazioni su un binario. Passando il parametro -I (binary info) otteniamo il seguente output:
+arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
+    </item>
+    
+    <item>
       <title>Reply challenge - wysiNwyg</title>
       <link>https://rad-13.github.io/posts/wysinwyg/</link>
       <pubDate>Sun, 25 Nov 2018 20:18:33 +0100</pubDate>

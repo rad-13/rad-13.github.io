@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pwn on R13</title>
+    <link>https://rad-13.github.io/tags/pwn/</link>
+    <description>Recent content in Pwn on R13</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 27 Nov 2018 20:18:33 +0100</lastBuildDate>
+    
+	<atom:link href="https://rad-13.github.io/tags/pwn/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>CSAW 2018 - get_it</title>
+      <link>https://rad-13.github.io/posts/get_it/</link>
+      <pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate>
+      
+      <guid>https://rad-13.github.io/posts/get_it/</guid>
+      <description>_getit è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
+Il binario fornito è un ELF64. Download
+Appena scaricato possiamo analizzarlo utilizzano rabin2, un tool molto utile al fine di ottenere informazioni su un binario. Passando il parametro -I (binary info) otteniamo il seguente output:
+arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
+    </item>
+    
+  </channel>
+</rss>
