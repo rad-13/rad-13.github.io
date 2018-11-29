@@ -57,7 +57,7 @@
   <section class="body" itemprop="articleBody">
     <p><em>What You See Is Not What You Get</em> è la sfida da 400 punti nella sezione binary della CTF Reply.<br />
 Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.<br />
-Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. <a href="https://files.fm/f/x64qequ2">download</a><br />
+Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. <a href="/files/wysiNwyg.zip" download>Download</a><br />
 Se proviamo a debuggarlo il programma risponde: <strong>No debugger please!</strong> L&rsquo;eseguibile controlla che l&rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema <a href="http://man7.org/linux/man-pages/man2/ptrace.2.html">qui</a> meglio descritta.<br />
 La syscall <code>ptrace(2)</code> viene utilizzata da vari debugger (gdb incluso) al fine di osservare e controllare l&rsquo;escuzione di un programma. Il trucco sta nel fatto che un processo può essere soggetto ad una sola ptrace alla volta, un secondo richiamo di questa porterà infatti ad un errore, rendendo consapevole il programma che la richiama di essere all&rsquo;interno di un debugger.</p>
 <div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="nf">push</span> <span class="no">ebp</span>

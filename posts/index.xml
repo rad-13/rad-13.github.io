@@ -17,7 +17,7 @@
       <pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate>
       
       <guid>https://rad-13.github.io/posts/get_it/</guid>
-      <description>_getit è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
+      <description>get_it è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
 Il binario fornito è un ELF64. Download
 Appena scaricato possiamo analizzarlo utilizzano rabin2, un tool molto utile al fine di ottenere informazioni su un binario. Passando il parametro -I (binary info) otteniamo il seguente output:
 arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
@@ -31,7 +31,7 @@ arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz fals
       <guid>https://rad-13.github.io/posts/wysinwyg/</guid>
       <description>What You See Is Not What You Get è la sfida da 400 punti nella sezione binary della CTF Reply.
 Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.
-Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. download
+Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. Download
 Se proviamo a debuggarlo il programma risponde: No debugger please! L&amp;rsquo;eseguibile controlla che l&amp;rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema qui meglio descritta.</description>
     </item>
     
