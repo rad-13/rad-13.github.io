@@ -65,7 +65,7 @@
 Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.<br />
 Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. <a href="/files/wysiNwyg.zip" download>Download</a><br />
 Se proviamo a debuggarlo il programma risponde: <strong>No debugger please!</strong> L&rsquo;eseguibile controlla che l&rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema <a href="http://man7.org/linux/man-pages/man2/ptrace.2.html">qui</a> meglio descritta.<br />
-La syscall <code>ptrace(2)</code> viene utilizzata da vari debugger (gdb incluso) al fine di osservare e controllare l&rsquo;escuzione di un programma. Il trucco sta nel fatto che un processo può essere soggetto ad una sola ptrace alla volta, un secondo richiamo di questa porterà infatti ad un errore, rendendo consapevole il programma che la richiama di essere all&rsquo;interno di un debugger.</p>
+La syscall <code>ptrace(2)</code> viene utilizzata da vari debugger (gdb incluso) al fine di osservare e controllare l&rsquo;esecuzione di un programma. Il trucco sta nel fatto che un processo può essere soggetto ad una sola ptrace alla volta, un secondo richiamo di questa porterà infatti ad un errore, rendendo consapevole il programma che la richiama di essere all&rsquo;interno di un debugger.</p>
 <div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="nf">push</span> <span class="no">ebp</span>
 <span class="nf">mov</span> <span class="no">ebp</span><span class="p">,</span> <span class="no">esp</span>
 <span class="nf">sub</span> <span class="no">esp</span><span class="p">,</span> <span class="mi">8</span>
@@ -98,7 +98,8 @@ jmp, il programma può ora essere debuggato.</p>
 Password:</code></pre></div>
 <p>L&rsquo;input fornito verrà allocato nella posizione 0x8049d60 (si suppone l&rsquo;ASLR disattivato).<br />
 Il programma reversato tramite radare2 è così costituito (psudocodice)(l&rsquo;ho molto compattato):</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">T1</span> <span class="o">=</span> <span class="n">memset</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">35</span><span class="p">);</span>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="n">INPUT</span><span class="p">;</span>
+<span class="n">memset</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">35</span><span class="p">);</span>
 <span class="n">fgets</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">INPUT</span><span class="p">)</span> <span class="n">exit</span><span class="p">();</span>
 <span class="k">if</span><span class="p">(</span><span class="n">INPUT</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">INPUT</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
@@ -124,7 +125,7 @@ Tolte tali parti del programma all&rsquo;inizio della entry possiamo notare una 
 <div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">]gl]wlu]lAaj@lAl&#39;l@jp\]TARGF_RGZ\]@j\FYF@GD\]C</code></pre></div>
 <p>Sono stati omessi alcuni valori non visualizzabili a schermo.<br />
 Pare essere un stringa cifrata, la stringa è di 46byte, ma dai controlli effettuati nel codice la password è composta da 22 caratteri, c&rsquo;è dunque qualcosa in più.<br />
-Il metodo con cui tale stringa viene cifrata è hardcodato all&rsquo;interno dell&rsquo;eseguitile, ed esso è un semplice xor tra l&rsquo;input e il valore <strong>0x33</strong>.<br />
+Il metodo con cui tale stringa viene cifrata è hardcodato all&rsquo;interno dell&rsquo;eseguibile, ed esso è un semplice xor tra l&rsquo;input e il valore <strong>0x33</strong>.<br />
 La soluzione è quindi:</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
 
