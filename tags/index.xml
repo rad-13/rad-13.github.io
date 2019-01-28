@@ -5,7 +5,7 @@
     <link>https://rad-13.github.io/tags/</link>
     <description>Recent content in Tags on R13</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>it-it</language>
     <lastBuildDate>Sun, 25 Nov 2018 20:18:33 +0100</lastBuildDate>
     
 	<atom:link href="https://rad-13.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
@@ -30,9 +30,18 @@
     </item>
     
     <item>
+      <title>Fireshell</title>
+      <link>https://rad-13.github.io/tags/fireshell/</link>
+      <pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate>
+      
+      <guid>https://rad-13.github.io/tags/fireshell/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Pwn</title>
       <link>https://rad-13.github.io/tags/pwn/</link>
-      <pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate>
+      <pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate>
       
       <guid>https://rad-13.github.io/tags/pwn/</guid>
       <description></description>
