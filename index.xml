@@ -18,7 +18,7 @@
       
       <guid>https://rad-13.github.io/about/</guid>
       <description>Sono un programmatore appassionato di sicurezza informatica. Mi piace partecipare a competizioni CTF, nelle quale prediligo Rev/Binary, Pwn e Web. Sono anche appassionato di analisi dei Malware ed OSINT.
-  Cesare   Per informazioni o altro scrivere a r13@tuta.io</description>
+  Cesare, un immagine placeholder per una foto che non metterò mai   Per informazioni o altro scrivere a r13@tuta.io</description>
     </item>
     
     <item>
@@ -27,9 +27,9 @@
       <pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate>
       
       <guid>https://rad-13.github.io/posts/casino/</guid>
-      <description>casino è la seconda sfida proposta nella sezione pwning della FireShell CTF. Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso di inserirla tra i post.
+      <description>casino è la seconda sfida proposta nella sezione pwning della FireShell CTF. Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso d&amp;rsquo;inserirla tra i post.
 La sfida presenta un solo eseguibile, un ELF64. Download
-Analizzando il programma con rabin2 possiamo dare un occhiata alle caratteristiche principali dell&amp;rsquo;eseguibile.
+Analizzando il programma con rabin2 possiamo dare un&amp;rsquo;occhiata alle caratteristiche principali dell&amp;rsquo;eseguibile.
 arch x86 baddr 0x400000 binsz 11297 bintype elf bits 64 canary true sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
     </item>
     

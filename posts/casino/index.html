@@ -70,11 +70,11 @@
         textColor: '#f2f0ec'
       })</script>
     <p><strong>casino</strong> è la seconda sfida proposta nella sezione pwning della <a href="https://ctftime.org/event/727">FireShell CTF</a>.
-Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso di inserirla tra i post.</p>
+Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso d&rsquo;inserirla tra i post.</p>
 
 <p>La sfida presenta un solo eseguibile, un ELF64. <a href="/files/casino" download>Download</a></p>
 
-<p>Analizzando il programma con <a href="https://r2wiki.readthedocs.io/en/latest/tools/rabin2/">rabin2</a> possiamo dare un occhiata alle caratteristiche principali dell&rsquo;eseguibile.</p>
+<p>Analizzando il programma con <a href="https://r2wiki.readthedocs.io/en/latest/tools/rabin2/">rabin2</a> possiamo dare un&rsquo;occhiata alle caratteristiche principali dell&rsquo;eseguibile.</p>
 <div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">arch     x86
 baddr    0x400000
 binsz    11297
@@ -120,21 +120,21 @@ Un ulteriore parametro è <strong>RELRO</strong>, settato a full.
         </figcaption>
 </figure>
 
-Di default GCC compila il codice secondo un RELRO parziale, ovvero fa si che la GOT (Global Offset Table) venga prima della BSS. Il compilatore non può sapere prima del linking la posizone di eventuali variabili esterne al programma stesso (tipo uno shared object), al posto di tale variabile pone un simbolo, che verrà risolto in seguito. La GOT viene popolata dal linker dinamico, il quale provvede ad inserire i vari indirizzi negli appositi campi della tabella (risoluzione dei simpboli) durante il caricamento del programma in memoria.</p>
+Di default GCC compila il codice secondo un RELRO parziale, ovvero fa si che la GOT (Global Offset Table) venga prima della BSS. Il compilatore non può sapere prima del linking la posizone di eventuali variabili esterne al programma stesso (tipo uno shared object), al posto di tale variabile pone un simbolo, che verrà risolto in seguito. La GOT viene popolata dal linker dinamico, il quale provvede a inserire i vari indirizzi negli appositi campi della tabella (risoluzione dei simpboli) durante il caricamento del programma in memoria.</p>
 
 <p>BSS (Block Started by Symbol, così chiamato per ragioni storiche) è invece un segmento contentente delle vere e proprie variabili globali, non inizializzate o inizializzate a 0.</p>
 
-<p>Posizionare la GOT prima del segmento BSS permette di evitare attacchi di tipo buffer overflow sulle variabili nel BSS a discapito di indirizzi nella GOT.</p>
+<p>Posizionare la GOT prima del segmento BSS permette di evitare attacchi di tipo buffer overflow sulle variabili nel BSS a discapito d&rsquo;indirizzi nella GOT.</p>
 
-<p>Se si avesse la possibilità di sovvrascrivere un entry della GOT si potrebbe modificare il flusso dell&rsquo;eseguibile, ingannandolo su un eventuale valore nella tabella stessa, o addirittura, se si potesse modificare un valore nella PLT (Procedure Linkage Table) modificando l&rsquo;indirizzo di una funzione nella tabella, si potrebbe effettuare un <em>arbitrary code execution</em>.</p>
+<p>Suponendo di poter sovvrascrivere un entry della GOT si potrebbe modificare il flusso dell&rsquo;eseguibile, ingannandolo su un eventuale valore nella tabella stessa, o addirittura, se si potesse alterare un valore nella PLT (Procedure Linkage Table) modificando l&rsquo;indirizzo di una funzione nella tabella, sarebbe possibile effettuare un <em>arbitrary code execution</em>.</p>
 
 <p>Il RELRO totale (detto full) previene totalmente questa eventualità rendendo la GOT e la PLT read-only, prevenendo quindi attacchi di <em>GOT overwrite</em>.</p>
 
-<p>Si noti che il full RELRO non è abilitato di default poichè causa non poca latenza nel caricamento in memoria di un binario, poichè tutti i simboli che puntano a variabili esterne vengono risolti e sostituiti prima di rendere la tabella read-only.</p>
+<p>Si noti che il full RELRO non è abilitato di default poiché causa un&rsquo;elevata latenza nel caricamento in memoria di un binario, poiché tutti i simboli che puntano a variabili esterne vengono risolti e sostituiti prima di rendere la tabella read-only.</p>
 
 <p>Con la compilazione di casino secondo un full RELRO risulta ormai chiaro che questo eseguibile non sarà soggetto a buffer overflow.</p>
 
-<p>Eseguendo il programma ci viene chiesto di inserire un nome, a seguito di esso dobbiamo indovinare 100 numeri. Se si sbaglia il numero l&rsquo;esecuzione termina.</p>
+<p>Eseguendo il programma ci viene chiesto d&rsquo;inserire un nome, a seguito di esso dobbiamo indovinare 100 numeri, se si sbaglia il numero l&rsquo;esecuzione termina.</p>
 <div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">What is your name? RAD13
 Welcome RAD13
 
@@ -184,11 +184,11 @@ Sorry! It was not my number</code></pre></div>
 <span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">seed</span><span class="p">],</span> <span class="nb">eax</span></code></pre></div>
 <p>Tale codice rappresenta come il seed viene generato.</p>
 
-<p>I computer sono macchine deterministiche, ciò porta il difetto che risulta difficile ottenere qualcosa di randomico, numeri random vengono spesso generati tramite i movimenti del mouse, tempi di accesso a i dischi, statica sui contatti delle USB ed altri fattori poco deterministici.
-la <a href="http://man7.org/linux/man-pages/man3/rand.3.html">rand</a> offerta dalla glibc è invece un tipo di generatore detto pseudo casuale.
-Un generatore pseudo casuale è in grado di generare numeri randomici a partire da un intero con cui il generatore viene inizializzato, tale numero viene detto seed.</p>
+<p>I computer sono macchine deterministiche, ciò porta il difetto che risulta difficile ottenere qualcosa di randomico, numeri random vengono spesso generati tramite i movimenti del mouse, tempi di accesso a i dischi, statica sui contatti delle USB e altri fattori poco deterministici.
+La <a href="http://man7.org/linux/man-pages/man3/rand.3.html">rand</a> offerta dalla glibc è invece un tipo di generatore detto pseudo casuale.
+Un generatore pseudo casuale è in grado di generare numeri randomici a partire da un intero con cui il generatore viene inizializzato, tale numero è chiamato <em>seed</em>.</p>
 
-<p>Facciamo un esempio, si prenda il seguente codice, la mia reimplementazione del generatore psudo casuale della glibc:</p>
+<p>Facciamo un esempio, si prenda il seguente codice, la mia re implementazione del generatore pseudo casuale della glibc:</p>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span><span class="cp"></span>
 <span class="cp">#define RSIZE 10
@@ -235,7 +235,7 @@ Il seed può essere inizializzato utilizzando diversi trucchi, il più comune st
 <span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span></code></pre></div>
 <p>Il seed in casino viene anche moltiplicato per un valore e shiftato di 3 byte a destra, se si osserva attentamente il codice si potrà notare che non è altro che la traduzione assembly -&gt; python della routine di generazione del seed.</p>
 
-<p>Si noti il modulo ctypes, il quale può permetterci di aggancarci alla glibc.</p>
+<p>Si noti il modulo ctypes, il quale ci permette di agganciarci alla glibc.</p>
 
 <p>Eseguiamo ora il programma:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>+<span class="o">]</span> Opening connection to challs.fireshellsecurity.team on port <span class="m">31006</span>: Done
@@ -281,9 +281,9 @@ Il problema si trova nel seguente codice:</p>
 <span class="nf">lea</span> <span class="nb">rsi</span><span class="p">,</span> <span class="kt">qword</span> <span class="p">[</span><span class="mh">0x00400d08</span><span class="p">]</span>
 <span class="nf">lea</span> <span class="nb">rdi</span><span class="p">,</span> <span class="kt">qword</span> <span class="nv">str.flag.txt</span>
 <span class="nf">call</span> <span class="nv">sym.imp.fopen</span></code></pre></div>
-<p>Tale parte viene eseguita ogni volta che si indovina un nuovo numero, viene confrontatata la variabile locale <em>local_54</em> con il valore 0x63, ovvero 99, e se è minore o uguale il loop si ripete ed un nuovo numero è chiesto.</p>
+<p>Tale parte viene eseguita ogni volta che si indovina un nuovo numero, viene confrontatata la variabile locale <em>local_54</em> con il valore 0x63, ovvero 99, e se è minore o uguale il loop si ripete e un nuovo numero è chiesto all&rsquo;utente.</p>
 
-<p>Se invece si sono indovinati i 100 numeri si confronta la variabile locale <em>local_58</em> con 0x64, ovvero 100, se è maggiore viene stampato il contenuto del file <em>flag.txt</em> se no il programma termina.</p>
+<p>Nel caso in cui siano invece stati indovinati tutti 100 i numeri si confronta la variabile locale <em>local_58</em> con 0x64, ovvero 100, se è maggiore viene stampato il contenuto del file <em>flag.txt</em> se no il programma termina.</p>
 
 <p>Indovinare i 100 numeri quindi non basta, da questa parte in avanti ci si dimentica del discorso sul generatore casuale e si affronta un nuovo problema: &ldquo;Come rendere local_58 maggiore di 100&rdquo;.</p>
 
@@ -325,7 +325,7 @@ Welcome 0x7ffd1de4e570</code></pre></div>
 Il problema si pone ora quando la printf viene usata senza passare il tipo dei parametri, ad esempio facendo:</p>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="n">name</span> <span class="o">=</span> <span class="n">inputDaUtente</span><span class="p">();</span>
 <span class="n">printf</span><span class="p">(</span><span class="n">name</span><span class="p">);</span></code></pre></div>
-<p>Senza formattazione la printf si limita ad una sostituzione mnemonica della variabile, se diamo in input: &ldquo;%p&rdquo; allora il comando lanciato sarà: <em>printf(&ldquo;%p&rdquo;)</em>, il quale non ha argomenti, e stamperà la prima variabile contenuta nella locazione stabilita dalla calling convention, che nel nostro caso (x86-64) è (in ordine): rdi, rsi, rdx, rcx, r8, r9 ed infine lo stack.</p>
+<p>Senza formattazione la printf si limita a una sostituzione mnemonica della variabile, se diamo in input: &ldquo;%p&rdquo; allora il comando lanciato sarà: <em>printf(&ldquo;%p&rdquo;)</em>, il quale non ha argomenti, e stamperà la prima variabile contenuta nella locazione stabilita dalla calling convention, che nel nostro caso (x86-64) è (in ordine): rdi, rsi, rdx, rcx, r8, r9 e infine lo stack.</p>
 
 <p>Quindi, dare come input &ldquo;%p %p %p&rdquo; non farà altro che causare una <em>printf(&ldquo;%p %p %p&rdquo;)</em>, che non avendo parametri stamperà in formato puntatore il contenuto di: rsi, rdc ed rcx, si noti infatti che rdi (il primo parametro) è già occupato dall&rsquo;effettiva stringa &ldquo;%p %p %p&rdquo;.</p>
 
@@ -344,7 +344,7 @@ rbp 0x7fffffffded0  rip 0x00400ac3      rflags 1I</code></pre></div>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 <span class="n">printf</span><span class="p">(</span><span class="s">&#34;AAA%n&#34;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
 <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">%d&#34;</span><span class="p">,</span><span class="n">x</span><span class="p">);</span></code></pre></div>
-<p>L&rsquo;output del codice è 3, questo poichè il simbolo %n indica di scrivere nel puntatore passato come parametro successivo il numero di caratteri scritti fino ad ora, ed AAA sono 3 caratteri.</p>
+<p>L&rsquo;output del codice è 3, questo poiché il simbolo %n indica di scrivere nel puntatore passato come parametro successivo il numero di caratteri scritti fino ad ora, ed AAA sono 3 caratteri.</p>
 
 <p>Abbiamo ora tutti gli strumenti per modificare la variabile <em>obj.bet</em>, che si trova all&rsquo;indirizzo di memoria: 0x602020.
 L&rsquo;input da inserire è:</p>
