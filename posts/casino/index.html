@@ -69,7 +69,9 @@
         backgroundColor: 'rgb(255, 204, 102);',
         textColor: '#f2f0ec'
       })</script>
-    <p><strong>casino</strong> è la seconda sfida proposta nella sezione pwning della <a href="https://ctftime.org/event/727">FireShell CTF</a>.
+    
+
+<p><strong>casino</strong> è la seconda sfida proposta nella sezione pwning della <a href="https://ctftime.org/event/727">FireShell CTF</a>.
 Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso d&rsquo;inserirla tra i post.</p>
 
 <p>La sfida presenta un solo eseguibile, un ELF64. <a href="/files/casino" download>Download</a></p>
@@ -113,7 +115,7 @@ va       true</code></pre></div>
 
 <p>Essendo nx a true lo stack non è eseguibile, combinato con canary a true si capisce fin da subito che il codice difficilmente sarà soggetto a tecniche di buffer overflow.
 Un ulteriore parametro è <strong>RELRO</strong>, settato a full.
-<strong>REL</strong>ocation <strong>R</strong>ead <strong>O</strong>nly__ è una tecnica che (come dice il nome) permette di avere un eseguibile in cui alcune sezioni sono read-only.
+<strong>REL</strong>ocation <strong>R</strong>ead <strong>O</strong>nly è una tecnica che (come dice il nome) permette di avere un eseguibile in cui alcune sezioni sono read-only.
 <figure>
     <img src="/img/ELF_layout.svg"/> <figcaption>
             <h4>Layout di un ELF</h4>
@@ -407,6 +409,22 @@ L&rsquo;input da inserire è:</p>
 
 <p>Eseguendo il programma si ottiene la flag:</p>
 <div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">F#{buggy_c4s1n0_1s_n0t_f41r!}</code></pre></div>
+<h2 id="un-altra-soluzione-per-il-seed">Un&rsquo;altra soluzione per il seed</h2>
+
+<p>Ho notato leggendo i writeups della sfida una soluzione interessante proposta dal team dotsu- alla seguente <a href="https://ctftime.org/writeup/12975">pagina</a>.
+Analizzando il processo con radare2, poco prima della solita print lo stack è il seguente:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">0x7ffcb6a627d0  0x00000000000000c2   ........
+0x7ffcb6a627d8  0x00007ffcb6a62806   .(......
+0x7ffcb6a627e0  0x00000000093b9b3d   =.;..... &lt;- seed
+0x7ffcb6a627e8  0x00007fe1058a9515   ........
+0x7ffcb6a627f0  0x00000a3331444152   RAD13... &lt;- printf arg</code></pre></div>
+<p>All&rsquo;indirizzo <em>0x7ffcb6a627d8</em> è posizionato l&rsquo;effettivo seed.
+Possiamo allora leggerlo utilizzando un format string attack, passando come nome:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">&#34;%8$p&#34;</code></pre></div>
+<p>che porterà quindi a stampare l&rsquo;ottavo argomento in formato puntatore da parte della printf, il seed vero e proprio (<em>0x00000000093b9b3d</em>).</p>
+
+<p>Essendo come spiegato prima che un secondo è un tempo veramente esiguo per un computer possiamo stampare il seed, chiudere la connessione ed aprirne immediatamente una nuova, conoscendo ora il seed e passando come nome la format string per incrementare il bet.</p>
+
   </section>
 </article>
 
