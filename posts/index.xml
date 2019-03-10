@@ -6,10 +6,21 @@
     <description>Recent content in Posts on R13</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>it-it</language>
-    <lastBuildDate>Mon, 28 Jan 2019 19:56:33 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 09 Mar 2019 18:54:01 +0100</lastBuildDate>
     
 	<atom:link href="https://rad-13.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Aeroctf CTF - Navigation System</title>
+      <link>https://rad-13.github.io/posts/navigation-system/</link>
+      <pubDate>Sat, 09 Mar 2019 18:54:01 +0100</pubDate>
+      
+      <guid>https://rad-13.github.io/posts/navigation-system/</guid>
+      <description>Navigation System è la prima sfida della sezione pwning della Aero CTF.
+L&amp;rsquo;idea di questo writeup non è prettamente quello di spiegare nel dettaglio le falle presenti nella sfida, ma piuttosto valutare come il software Ghidra performa in un contesto come le CTF, e confrontarlo al classico radare2.
+Per una spiegazione più approfondita di come ho sfruttato le vulnerabilità del binario al fine di ottenere la flag si può fare riferimento alla seguente sfida, abbastanza analoga.</description>
+    </item>
     
     <item>
       <title>FireShell CTF - casino</title>

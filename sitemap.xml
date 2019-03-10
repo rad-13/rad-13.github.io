@@ -8,6 +8,11 @@
   </url>
   
   <url>
+    <loc>https://rad-13.github.io/posts/navigation-system/</loc>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://rad-13.github.io/posts/casino/</loc>
     <lastmod>2019-01-28T19:56:33+01:00</lastmod>
   </url>
@@ -20,6 +25,12 @@
   <url>
     <loc>https://rad-13.github.io/posts/wysinwyg/</loc>
     <lastmod>2018-11-25T20:18:33+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://rad-13.github.io/tags/aeroctf/</loc>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -41,7 +52,7 @@
   
   <url>
     <loc>https://rad-13.github.io/categories/ctf/</loc>
-    <lastmod>2019-01-28T19:56:33+01:00</lastmod>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -53,13 +64,13 @@
   
   <url>
     <loc>https://rad-13.github.io/posts/</loc>
-    <lastmod>2019-01-28T19:56:33+01:00</lastmod>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://rad-13.github.io/tags/pwn/</loc>
-    <lastmod>2019-01-28T19:56:33+01:00</lastmod>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -77,7 +88,7 @@
   
   <url>
     <loc>https://rad-13.github.io/tags/</loc>
-    <lastmod>2018-11-25T20:18:33+01:00</lastmod>
+    <lastmod>2019-03-09T18:54:01+01:00</lastmod>
     <priority>0</priority>
   </url>
   

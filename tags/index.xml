@@ -6,10 +6,19 @@
     <description>Recent content in Tags on R13</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>it-it</language>
-    <lastBuildDate>Sun, 25 Nov 2018 20:18:33 +0100</lastBuildDate>
+    <lastBuildDate>Sat, 09 Mar 2019 18:54:01 +0100</lastBuildDate>
     
 	<atom:link href="https://rad-13.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Aeroctf</title>
+      <link>https://rad-13.github.io/tags/aeroctf/</link>
+      <pubDate>Sat, 09 Mar 2019 18:54:01 +0100</pubDate>
+      
+      <guid>https://rad-13.github.io/tags/aeroctf/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Binary</title>
@@ -41,7 +50,7 @@
     <item>
       <title>Pwn</title>
       <link>https://rad-13.github.io/tags/pwn/</link>
-      <pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate>
+      <pubDate>Sat, 09 Mar 2019 18:54:01 +0100</pubDate>
       
       <guid>https://rad-13.github.io/tags/pwn/</guid>
       <description></description>
