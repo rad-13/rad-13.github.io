@@ -71,7 +71,7 @@
       })</script>
     <p><strong>useless-chall</strong> è la penultima sfida della sezione reverse engineering della <a href="https://ctftime.org/event/763">INS&rsquo;hAck 2019 CTF</a>.
 Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le vare funzioni di hash piuttosto che capirle.
-Il programma è stato reversatro tramite il tool <a href="https://ghidra-sre.org/">Ghidra</a>.</p>
+Il programma è stato reversato tramite il tool <a href="https://ghidra-sre.org/">Ghidra</a>.</p>
 
 <p>Il binario utilizzato è il seguente: <a href="/files/hash" download>Download</a></p>
 
@@ -85,7 +85,7 @@ Il programma è stato reversatro tramite il tool <a href="https://ghidra-sre.org
 <p>This binary accepts more than one valid input, if you found one.</p>
 </blockquote>
 
-<p>Ci viene quindi comunicato che ci sono più soluzioni a tale sfida, ma che il briteforcing non è una soluzione.</p>
+<p>Ci viene quindi comunicato che ci sono più soluzioni a tale sfida, ma che il bruteforcing non è una soluzione.</p>
 
 <p>Viene di seguito riportato il codice del main:</p>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">undefined8</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">long</span> <span class="n">argv</span><span class="p">)</span>
@@ -237,7 +237,7 @@ Nella pratica la stringa <strong>WWAW</strong> è <em>&ldquo;What a wonderful wo
 <p>Ci viene chiesto di trovare una collisione per la funzione di hash tale che il valore di hash restituito sia pari a <strong>0x3c5ae529</strong>.</p>
 
 <p>La consegna del problema prende ora più senso, esistono più soluzioni poichè c&rsquo;è possibilità di collisione nella funzione di hash.
-Decompilando l&rsquo;impllentazione di <strong>hashFun2</strong> si ricava il seguente codice:</p>
+Decompilando l&rsquo;implementazione di <strong>hashFun2</strong> si ricava il seguente codice:</p>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">hashFun2</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span>
 <span class="p">{</span>
   <span class="n">size_t</span> <span class="n">sLen</span><span class="p">;</span>
@@ -253,7 +253,7 @@ Decompilando l&rsquo;impllentazione di <strong>hashFun2</strong> si ricava il se
   <span class="p">}</span>
   <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">sum</span><span class="p">;</span>
 <span class="p">}</span></code></pre></div>
-<p>È una sommatoria, più precisamente imponendo il vincolo che la stringa in input è di 41 caratteri abbiamo che la funzione appena vista implementa la seguente formula matematica:
+<p>È una sommatoria, più precisamente imponendo il vincolo che la stringa in input sia di 41 caratteri abbiamo che la funzione appena vista implementa la seguente formula matematica:
 $$
 \begin{align}
 hash = \sum_{i=0}^{41}n_i \cdot 2^{i \% 31}
@@ -266,11 +266,11 @@ Tale funzione di hash non è sicura, risulta possibile ottenere una collisione v
 <p>La distribuzione dell&rsquo;esponente ci mostra che esso si incrementa man mano che $i$ aumenta, in pratica ciò implica che il contributo di $n_i$ aumenta man mano che la $i$ si avvicina a 31, per poi ricominciare da 0 man mano si allontana.</p>
 
 <p>In pratica ciò ci sta dicendo che se vogliamo forzare dei grossi cambiamenti nell&rsquo;output dovremo farlo con le prime cifre a sinistra di 31. Inoltre se vogliamo cambiare un singolo byte nell&rsquo;output basterà aumentare o diminuire il 31-esimo byte nell&rsquo;input, poichè $n_i \cdot 2^{31 \% 31} = n_i \cdot 2^{0} = 1$.
-L&rsquo;idea è quindi quella di lasciar perdere le ultime $(41-31) = 10$ cifre e lavorare su quelle più significative.</p>
+L&rsquo;idea è quindi quella di lasciare perdere le ultime $(41-31) = 10$ cifre e lavorare su quelle più significative.</p>
 
 <p>L&rsquo;algoritmo parte inizializzando un vettore di &lsquo;A&rsquo; (41 in intero).</p>
 
-<p>Fatto ciò si sceglie la 31-esima cifra e si incrementa il valore fino a che l&rsquo;hash ottenuto dalla stringa in esame non supera il valore di <strong>0x3c5ae529</strong>, a questo punto si decrementa la cifra attuale e ci si sposta di una lettera a destra, così che al prossimo ciclo si potrà raffinare la sequenza verso l&rsquo;hash voluto.</p>
+<p>Fatto ciò si sceglie la 31-esima cifra e si incrementa il valore fino a che l&rsquo;hash ottenuto dalla stringa in esame non supera il valore di <strong>0x3c5ae529</strong>, a questo punto si decrementa la cifra attuale e ci si sposta di una lettera a sinistra, così che al prossimo ciclo si potrà raffinare la sequenza verso l&rsquo;hash voluto.</p>
 
 <p>L&rsquo;algoritmo tende quindi alla soluzione ottima, non è detto che la raggiunga (<em>dipende dalle condizioni iniziali</em>), se si parte dal carattere &lsquo;A&rsquo; come in esempio si ottiene la flag.</p>
 

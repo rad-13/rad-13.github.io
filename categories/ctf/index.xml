@@ -17,7 +17,7 @@
       <pubDate>Fri, 05 Apr 2019 20:26:00 +0100</pubDate>
       
       <guid>https://rad-13.github.io/posts/useless-chall/</guid>
-      <description>useless-chall è la penultima sfida della sezione reverse engineering della INS&amp;rsquo;hAck 2019 CTF. Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le vare funzioni di hash piuttosto che capirle. Il programma è stato reversatro tramite il tool Ghidra.
+      <description>useless-chall è la penultima sfida della sezione reverse engineering della INS&amp;rsquo;hAck 2019 CTF. Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le vare funzioni di hash piuttosto che capirle. Il programma è stato reversato tramite il tool Ghidra.
 Il binario utilizzato è il seguente: Download
 La descrizione della sfida riporta:
  One of my friend sent me this binary and asked me if it was secure enough to act as the auth page of his highly secure password manager.</description>
