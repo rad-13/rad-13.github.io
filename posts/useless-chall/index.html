@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="it-it">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="generator" content="Hugo 0.54.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css">
+<link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
+<title>INS&#39;hAck 2019 - useless-chall - R13</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-130188859-1');
+</script>
+</head>
+<body>
+
+<header>
+  <div class="container clearfix">
+    <span class="base05">[</span><span class="base08">R</span><span class="base09">A</span><span class="base0a">D</span><span class="base0b">-</span><span class="base0c">1</span><span class="base0d">3</span><span class="base05">]</span>
+    <span class="base05"># <a class="path" href=https://rad-13.github.io/> home</a>/posts/useless-chall/</span>
+    <div class="right">
+      
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+
+<main role="main" class="article">
+  
+<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="meta">
+
+    <span class="key">published on</span>
+    <span class="val"><time itemprop="datePublished" datetime="2019-04-05">April 05, 2019</time></span>
+
+
+    <span class="key">in</span>
+    <span class="val">
+
+        <a href="/categories/ctf">ctf</a>
+
+    </span>
+
+
+    <br>
+    <span class="key">tags:</span>
+    <span class="val">
+
+        <a href="/tags/INS%27hAck%202019">INS&#39;hAck 2019</a>
+
+        <a href="/tags/rev">rev</a>
+
+    </span>
+
+  </div>
+  <h1 class="headline" itemprop="headline">INS&#39;hAck 2019 - useless-chall</h1>
+  <section class="body" itemprop="articleBody">
+    <script src="https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js"></script>
+    <script>addBackToTop({
+        diameter: 56,
+        backgroundColor: 'rgb(255, 204, 102);',
+        textColor: '#f2f0ec'
+      })</script>
+    <p><strong>useless-chall</strong> è la penultima sfida della sezione reverse engineering della <a href="https://ctftime.org/event/763">INS&rsquo;hAck 2019 CTF</a>.
+Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le vare funzioni di hash piuttosto che capirle.
+Il programma è stato reversatro tramite il tool <a href="https://ghidra-sre.org/">Ghidra</a>.</p>
+
+<p>Il binario utilizzato è il seguente: <a href="/files/hash" download>Download</a></p>
+
+<p>La descrizione della sfida riporta:</p>
+
+<blockquote>
+<p>One of my friend sent me this binary and asked me if it was secure enough to act as the auth page of his highly secure password manager.</p>
+
+<p>NOTA: The flag is of the form INSA{&hellip;} and contains letters, numbers and symbols. And way too many characters to be able to bruteforce it :)</p>
+
+<p>This binary accepts more than one valid input, if you found one.</p>
+</blockquote>
+
+<p>Ci viene quindi comunicato che ci sono più soluzioni a tale sfida, ma che il briteforcing non è una soluzione.</p>
+
+<p>Viene di seguito riportato il codice del main:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">undefined8</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">long</span> <span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">hash1</span><span class="p">;</span>
+  <span class="n">undefined8</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">isNotLen41</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">hash1_t</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">hash2_t</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">hash3</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">num</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">str</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)(</span><span class="n">argv</span> <span class="o">+</span> <span class="mi">8</span><span class="p">);</span>
+    <span class="n">isNotLen41</span> <span class="o">=</span> <span class="n">lenIsNot41</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+                    <span class="cm">/* Str must be 41 characters long */</span>
+    <span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">isNotLen41</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">hash1_t</span> <span class="o">=</span> <span class="n">hashFun1</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="s">&#34;What a wonderful world ...&#34;</span><span class="p">);</span>
+      <span class="n">hash1</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">hash1_t</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">hash1</span> <span class="o">*</span> <span class="o">-</span><span class="mi">9</span> <span class="o">+</span> <span class="n">hash1</span> <span class="o">*</span> <span class="n">hash1</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mh">0x3b</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Far Far Away..&#34;</span><span class="p">);</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="n">hash2_t</span> <span class="o">=</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">hash2_t</span> <span class="o">==</span> <span class="mh">0x3c5ae529</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">hash3</span> <span class="o">=</span> <span class="n">hashFun3</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="n">hash1</span><span class="p">);</span>
+          <span class="n">num</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">hash3</span> <span class="o">*</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">hash3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">==</span> <span class="p">(</span><span class="n">num</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Love this chall ?&#34;</span><span class="p">);</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+            <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Good job ! Validate with this flag.&#34;</span><span class="p">);</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+          <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Far Away, but close.&#34;</span><span class="p">);</span>
+          <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Far Far Far Away.&#34;</span><span class="p">);</span>
+      <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Far Far Far Far Away.&#34;</span><span class="p">);</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>È possibile notare fin da subito che il parametro principale di tale codice è la variabile <code>str = *(char **)(argv + 8);</code>, possiamo passarlo come parametro al programma.
+La prima cosa che viene controllata è la lunghezza della stringa in input, la funzione <em>lenIsNot4</em> presenta il seguente codice:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">lenIsNot41</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">size_t</span> <span class="n">slen</span><span class="p">;</span>
+
+  <span class="n">slen</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+  <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)(</span><span class="n">slen</span> <span class="o">!=</span> <span class="mi">41</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+<p>In seguito tale valore viene confrontato con 0, ovvero si controlla che la lunghezza della stringa non non sia 41, ovvero che sia 41:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">➜ ./hash 12345                                      
+Far Far Far Away.
+
+➜ ./hash $(python -c &#34;print(&#39;A&#39;*41)&#34;)   
+Far Away, but close.</code></pre></div>
+<p>Se la stringa rispetta i requisiti di lunghezza viene ora passata in catena a 3 funzioni di hash secondo il seguente schema:
+<figure>
+    <img src="/img/useless-chall-prog-layout.svg" width="50%" height="50%"/> <figcaption>
+            <h4>Layout di chiamata delle 3 funzioni hash</h4>
+        </figcaption>
+</figure>
+
+Nella pratica la stringa <strong>WWAW</strong> è <em>&ldquo;What a wonderful world &hellip;&rdquo;</em>, e viene passata alla prima funzione di hash qui descritta:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">hashFun1</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">wwaw</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">sLen</span><span class="p">;</span>
+  <span class="n">size_t</span> <span class="kt">unsigned</span> <span class="n">intsLen</span><span class="p">;</span>
+  <span class="n">size_t</span> <span class="n">wwawLen</span><span class="p">;</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">res</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">j</span><span class="p">;</span>
+
+  <span class="kt">unsigned</span> <span class="n">intsLen</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+  <span class="n">sLen</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="kt">unsigned</span> <span class="n">intsLen</span><span class="p">;</span>
+  <span class="n">wwawLen</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">wwaw</span><span class="p">);</span>
+  <span class="n">res</span> <span class="o">=</span> <span class="mh">0x96</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">sLen</span> <span class="o">!=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">wwawLen</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nl">LAB_0010127c</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">sLen</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">do</span> <span class="p">{</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">wwawLen</span> <span class="o">&lt;=</span> <span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="k">goto</span> <span class="n">LAB_0010127c</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">sLen</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+          <span class="n">res</span> <span class="o">=</span> <span class="n">res</span> <span class="o">^</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">wwaw</span><span class="p">[(</span><span class="kt">long</span><span class="p">)</span><span class="n">j</span><span class="p">]</span> <span class="o">&amp;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">str</span><span class="p">[(</span><span class="kt">long</span><span class="p">)</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sLen</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">*</span><span class="n">wwaw</span><span class="p">)</span> <span class="k">goto</span> <span class="n">LAB_00101288</span><span class="p">;</span>
+          <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">while</span><span class="p">(</span> <span class="nb">true</span> <span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="nl">LAB_00101288</span><span class="p">:</span>
+  <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">res</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>Il risultato di tale funzione viene confrontato poco dopo tramite il controllo:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span> <span class="p">(</span><span class="n">hash1</span> <span class="o">*</span> <span class="o">-</span><span class="mi">9</span> <span class="o">+</span> <span class="n">hash1</span> <span class="o">*</span> <span class="n">hash1</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mh">0x3b</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Far Far Away..&#34;</span><span class="p">);</span>
+  <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>La funzione <strong>hashFun1</strong> è pura magia nera, fortunatamente non ho trovato stringhe che non soddisfacessero l&rsquo;ultimo controllo.</p>
+
+<p>La funazione <strong>hashFun3</strong> riceve il risultato da <strong>hashFun2</strong> e dopo aver sommato i valori di <strong>str</strong> e moltiplicato tale valore per <strong>hash1</strong> (l&rsquo;hash della prima funzione <strong>hashFun1</strong>):</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">hashFun3</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span><span class="kt">int</span> <span class="n">hash1</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">size_t</span> <span class="n">sLen</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">sum</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+  <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">sLen</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+  <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">sLen</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">sum</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">str</span><span class="p">[(</span><span class="kt">long</span><span class="p">)</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)(</span><span class="n">sum</span> <span class="o">*</span> <span class="n">hash1</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+<p>controlla che la seguente condizione sia soddisfatta:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">hash3</span> <span class="o">=</span> <span class="n">hashFun3</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="n">hash1</span><span class="p">);</span>
+<span class="n">num</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">hash3</span> <span class="o">*</span> <span class="p">(</span><span class="kt">long</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span><span class="n">hash3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">==</span> <span class="p">(</span><span class="n">num</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Love this chall ?&#34;</span><span class="p">);</span>
+  <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>È possibile entrare in tale condizione dato il segno del valore di hash, in pratica sta controllando in modo abbastanza malato che il numero non sia dispari: $h^2 + 1 = \frac{(h^2 + 1) * 7}{7}$, ciò è vero a meno di arrotondamenti (<em>che potremmo avere dato il casting</em>).</p>
+
+<p>Il problema principale della sfida sorge invece nella condizione imposta da <strong>hashFun2</strong>, ovvero:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">hash2_t</span> <span class="o">=</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">hash2_t</span> <span class="o">==</span> <span class="mh">0x3c5ae529</span><span class="p">){...}</span></code></pre></div>
+<p>Ci viene chiesto di trovare una collisione per la funzione di hash tale che il valore di hash restituito sia pari a <strong>0x3c5ae529</strong>.</p>
+
+<p>La consegna del problema prende ora più senso, esistono più soluzioni poichè c&rsquo;è possibilità di collisione nella funzione di hash.
+Decompilando l&rsquo;impllentazione di <strong>hashFun2</strong> si ricava il seguente codice:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="nf">hashFun2</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">size_t</span> <span class="n">sLen</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">sum</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+  <span class="n">sLen</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+  <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">sLen</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">sum</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">+</span> <span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">str</span><span class="p">[(</span><span class="kt">long</span><span class="p">)</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="kt">char</span><span class="p">)</span><span class="n">i</span> <span class="o">&amp;</span> <span class="mh">0x1f</span><span class="p">));</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>È una sommatoria, più precisamente imponendo il vincolo che la stringa in input è di 41 caratteri abbiamo che la funzione appena vista implementa la seguente formula matematica:
+$$
+\begin{align}
+hash = \sum_{i=0}^{41}n_i \cdot 2^{i \% 31}
+\end{align}
+$$
+Tale funzione di hash non è sicura, risulta possibile ottenere una collisione verso il valore richiesto.</p>
+
+<p>Per farlo si analizza la formula appena data.</p>
+
+<p>La distribuzione dell&rsquo;esponente ci mostra che esso si incrementa man mano che $i$ aumenta, in pratica ciò implica che il contributo di $n_i$ aumenta man mano che la $i$ si avvicina a 31, per poi ricominciare da 0 man mano si allontana.</p>
+
+<p>In pratica ciò ci sta dicendo che se vogliamo forzare dei grossi cambiamenti nell&rsquo;output dovremo farlo con le prime cifre a sinistra di 31. Inoltre se vogliamo cambiare un singolo byte nell&rsquo;output basterà aumentare o diminuire il 31-esimo byte nell&rsquo;input, poichè $n_i \cdot 2^{31 \% 31} = n_i \cdot 2^{0} = 1$.
+L&rsquo;idea è quindi quella di lasciar perdere le ultime $(41-31) = 10$ cifre e lavorare su quelle più significative.</p>
+
+<p>L&rsquo;algoritmo parte inizializzando un vettore di &lsquo;A&rsquo; (41 in intero).</p>
+
+<p>Fatto ciò si sceglie la 31-esima cifra e si incrementa il valore fino a che l&rsquo;hash ottenuto dalla stringa in esame non supera il valore di <strong>0x3c5ae529</strong>, a questo punto si decrementa la cifra attuale e ci si sposta di una lettera a destra, così che al prossimo ciclo si potrà raffinare la sequenza verso l&rsquo;hash voluto.</p>
+
+<p>L&rsquo;algoritmo tende quindi alla soluzione ottima, non è detto che la raggiunga (<em>dipende dalle condizioni iniziali</em>), se si parte dal carattere &lsquo;A&rsquo; come in esempio si ottiene la flag.</p>
+
+<p>Il codice completo è il seguente:</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">from</span> <span class="n">numpy</span> <span class="n">import</span> <span class="n">int32</span>
+
+<span class="n">def</span> <span class="n">toStr</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">:</span>
+    <span class="k">return</span> <span class="err">&#39;&#39;</span><span class="p">.</span><span class="n">join</span><span class="p">([</span><span class="n">chr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="n">in</span> <span class="n">l</span><span class="p">])</span>
+
+<span class="n">def</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">sLen</span> <span class="o">=</span> <span class="n">len</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+
+    <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="n">sLen</span><span class="p">))</span><span class="o">:</span>
+        <span class="n">sum</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="n">sum</span> <span class="o">+</span> <span class="p">((</span><span class="n">ord</span><span class="p">(</span><span class="n">str</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">i</span> <span class="o">&amp;</span> <span class="mh">0x1f</span><span class="p">)))</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">int32</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span>
+
+<span class="n">hash2</span> <span class="o">=</span> <span class="mh">0x3c5ae529</span>
+<span class="n">blist</span> <span class="o">=</span> <span class="p">[</span><span class="n">ord</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">41</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="n">in</span> <span class="n">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="n">in</span> <span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">126</span><span class="o">-</span><span class="n">ord</span><span class="p">(</span><span class="sc">&#39;A&#39;</span><span class="p">))</span><span class="o">:</span>
+        <span class="n">h2</span> <span class="o">=</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">toStr</span><span class="p">(</span><span class="n">blist</span><span class="p">))</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">h2</span> <span class="o">&lt;</span> <span class="n">hash2</span><span class="p">)</span><span class="o">:</span>
+            <span class="n">blist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">blist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="o">:</span>
+            <span class="n">blist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">blist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">break</span>
+
+<span class="n">blist</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">=</span> <span class="n">blist</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">h2</span> <span class="o">=</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">toStr</span><span class="p">(</span><span class="n">blist</span><span class="p">))</span>
+
+<span class="n">print</span><span class="p">(</span><span class="n">hex</span><span class="p">(</span><span class="n">h2</span><span class="p">))</span>
+<span class="n">print</span><span class="p">(</span><span class="n">blist</span><span class="p">)</span>
+<span class="n">print</span><span class="p">(</span><span class="n">toStr</span><span class="p">(</span><span class="n">blist</span><span class="p">))</span></code></pre></div>
+<p>Che da come output:</p>
+<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">➜ python2.7 code.py            
+0x3c5ae529
+[65, 66, 65, 66, 65, 66, 65, 66, 66, 66, 65, 65, 65, 66, 66, 65, 65, 66, 65, 66, 66, 65, 66, 65, 65, 65, 66, 66, 66, 66, 65, 125, 66, 65, 65, 65, 65, 65, 65, 65, 65]
+ABABABABBBAAABBAABABBABAAABBBBA}BAAAAAAAA
+
+
+➜ ./hash ABABABABBBAAABBAABABBABAAABBBBA}BAAAAAAAA
+
+Good job ! Validate with this flag.</code></pre></div>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre','code'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+</script>
+
+  </section>
+</article>
+
+</main>
+
+</div>
+
+<footer>
+  <div class="container">
+    <span class="copyright">&copy; 2019 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
+
