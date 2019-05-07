@@ -1,179 +1,70 @@
-<!DOCTYPE html>
-<html lang="it-it">
-<head>
-<meta charset="utf-8">
-<meta name="description" content="">
-<meta name="generator" content="Hugo 0.54.0" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/css/style.css" type="text/css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css" disabled>
-<link rel="alternate" href="/index.xml" type="application/rss+xml" title="R13">
-<title>Reply challenge - wysiNwyg - R13</title>
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-130188859-1');
-</script>
-</head>
-<body>
-
-<header>
-  <div class="container clearfix">
-    <span class="base05">[</span><span class="base08">R</span><span class="base09">A</span><span class="base0a">D</span><span class="base0b">-</span><span class="base0c">1</span><span class="base0d">3</span><span class="base05">]</span>
-    <span class="base05"># <a class="path" href=https://rad-13.github.io/> home</a>/posts/wysinwyg/</span>
-    <div class="right">
-      
-    </div>
-  </div>
-</header>
-
-<div class="container">
-
-
-<main role="main" class="article">
-  
-<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
-  <div class="meta">
-
-    <span class="key">published on</span>
-    <span class="val"><time itemprop="datePublished" datetime="2018-11-25">November 25, 2018</time></span>
-
-
-    <span class="key">in</span>
-    <span class="val">
-
-        <a href="/categories/ctf">ctf</a>
-
-    </span>
-
-
-    <br>
-    <span class="key">tags:</span>
-    <span class="val">
-
-        <a href="/tags/reply">reply</a>
-
-        <a href="/tags/binary">binary</a>
-
-    </span>
-
-  </div>
-  <h1 class="headline" itemprop="headline">Reply challenge - wysiNwyg</h1>
-  <section class="body" itemprop="articleBody">
-    <script src="https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js"></script>
-    <script>addBackToTop({
-        diameter: 56,
-        backgroundColor: 'rgb(255, 204, 102);',
-        textColor: '#f2f0ec'
-      })</script>
-    <p><em>What You See Is Not What You Get</em> è la sfida da 400 punti nella sezione binary della CTF Reply.<br />
-Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.<br />
-Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. <a href="/files/wysiNwyg.zip" download>Download</a><br />
-Se proviamo a debuggarlo il programma risponde: <strong>No debugger please!</strong> L&rsquo;eseguibile controlla che l&rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema <a href="http://man7.org/linux/man-pages/man2/ptrace.2.html">qui</a> meglio descritta.<br />
-La syscall <code>ptrace(2)</code> viene utilizzata da vari debugger (gdb incluso) al fine di osservare e controllare l&rsquo;esecuzione di un programma. Il trucco sta nel fatto che un processo può essere soggetto ad una sola ptrace alla volta, un secondo richiamo di questa porterà infatti ad un errore, rendendo consapevole il programma che la richiama di essere all&rsquo;interno di un debugger.</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">push</span> <span class="nb">ebp</span>
-<span class="nf">mov</span> <span class="nb">ebp</span><span class="p">,</span> <span class="nb">esp</span>
-<span class="nf">sub</span> <span class="nb">esp</span><span class="p">,</span> <span class="mi">8</span>
-<span class="c1">; void*data</span>
-<span class="nf">push</span> <span class="mi">0</span>
-<span class="c1">; void*addr</span>
-<span class="nf">push</span> <span class="mi">0</span>
-<span class="c1">; pid_t pid</span>
-<span class="nf">push</span> <span class="mi">0</span>
-<span class="c1">; __ptrace_request request</span>
-<span class="nf">push</span> <span class="mi">0</span>
-<span class="nf">call</span> <span class="nv">sym.imp.ptrace</span><span class="c1">;[ga]</span>
-<span class="nf">add</span> <span class="nb">esp</span><span class="p">,</span> <span class="mh">0x10</span>
-<span class="nf">cmp</span> <span class="nb">eax</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
-<span class="nf">jmp</span> <span class="nv">loc.080485d0</span><span class="c1">;[gb]</span></code></pre></div>
-<p>È stato possibile individuare la ptrace tramite il tool strace, molto utile al fine di tracciare le syscall effettuate dal programma.</p>
-<div class="highlight"><pre class="chroma"><code class="language-nasm" data-lang="nasm"><span class="nf">ptrace</span><span class="p">(</span><span class="nv">PTRACE_TRACEME</span><span class="p">)</span> <span class="err">=</span> <span class="o">-</span><span class="mi">1</span> <span class="nv">EPERM</span> <span class="p">(</span><span class="nv">Operation</span> <span class="nv">not</span> <span class="nv">permitted</span><span class="p">)</span></code></pre></div>
-<p>Come è possibile notare il valore di ritorno della syscall (posizionato nel registro eax), è -1, ovvero la syscall non è andata a buon fine.<br />
-Per risolvere questo primo ostacolo dopo aver aperto il programma con IDA ho sostituito il jnz qualche riga dopo con un
-jmp, il programma può ora essere debuggato.</p>
-
-<p>L&rsquo;eseguibile dopo aver mostrato una scritta resta in attesa di un input da parte dell&rsquo;utente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">#########################################################
+<!doctype html><html lang=it-it><head><meta charset=utf-8><meta name=description content><meta name=generator content="Hugo 0.54.0"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href=/css/style.css type=text/css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type=text/css disabled><link rel=alternate href=/index.xml type=application/rss+xml title=R13><title>Reply challenge - wysiNwyg - R13</title><script async src="https://www.googletagmanager.com/gtag/js?id=UA-130188859-1"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-130188859-1');</script></head><body><header><div class="container clearfix"><span class=base05>[</span><span class=base08>R</span><span class=base09>A</span><span class=base0a>D</span><span class=base0b>-</span><span class=base0c>1</span><span class=base0d>3</span><span class=base05>]</span>
+<span class=base05># <a class=path href=https://rad-13.github.io/>home</a>/posts/wysinwyg/</span><div class=right></div></div></header><div class=container><main role=main class=article><article class=single itemscope itemtype=http://schema.org/BlogPosting><div class=meta><span class=key>published on</span>
+<span class=val><time itemprop=datePublished datetime=2018-11-25>November 25, 2018</time></span>
+<span class=key>in</span>
+<span class=val><a href=/categories/ctf>ctf</a></span><br><span class=key>tags:</span>
+<span class=val><a href=/tags/reply>reply</a>
+<a href=/tags/binary>binary</a></span></div><h1 class=headline itemprop=headline>Reply challenge - wysiNwyg</h1><section class=body itemprop=articleBody><script src=https://unpkg.com/vanilla-back-to-top@7.2.0/dist/vanilla-back-to-top.min.js></script><script>addBackToTop({diameter:56,backgroundColor:'rgb(255, 204, 102);',textColor:'#f2f0ec'})</script><p><em>What You See Is Not What You Get</em> è la sfida da 400 punti nella sezione binary della CTF Reply.<br>Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.<br>Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. <a href=/files/wysiNwyg.zip download>Download</a><br>Se proviamo a debuggarlo il programma risponde: <strong>No debugger please!</strong> L&rsquo;eseguibile controlla che l&rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema <a href=http://man7.org/linux/man-pages/man2/ptrace.2.html>qui</a> meglio descritta.<br>La syscall <code>ptrace(2)</code> viene utilizzata da vari debugger (gdb incluso) al fine di osservare e controllare l&rsquo;esecuzione di un programma. Il trucco sta nel fatto che un processo può essere soggetto ad una sola ptrace alla volta, un secondo richiamo di questa porterà infatti ad un errore, rendendo consapevole il programma che la richiama di essere all&rsquo;interno di un debugger.</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>push</span> <span class=nb>ebp</span>
+<span class=nf>mov</span> <span class=nb>ebp</span><span class=p>,</span> <span class=nb>esp</span>
+<span class=nf>sub</span> <span class=nb>esp</span><span class=p>,</span> <span class=mi>8</span>
+<span class=c1>; void*data</span>
+<span class=nf>push</span> <span class=mi>0</span>
+<span class=c1>; void*addr</span>
+<span class=nf>push</span> <span class=mi>0</span>
+<span class=c1>; pid_t pid</span>
+<span class=nf>push</span> <span class=mi>0</span>
+<span class=c1>; __ptrace_request request</span>
+<span class=nf>push</span> <span class=mi>0</span>
+<span class=nf>call</span> <span class=nv>sym.imp.ptrace</span><span class=c1>;[ga]</span>
+<span class=nf>add</span> <span class=nb>esp</span><span class=p>,</span> <span class=mh>0x10</span>
+<span class=nf>cmp</span> <span class=nb>eax</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span>
+<span class=nf>jmp</span> <span class=nv>loc.080485d0</span><span class=c1>;[gb]</span></code></pre></div><p>È stato possibile individuare la ptrace tramite il tool strace, molto utile al fine di tracciare le syscall effettuate dal programma.</p><div class=highlight><pre class=chroma><code class=language-nasm data-lang=nasm><span class=nf>ptrace</span><span class=p>(</span><span class=nv>PTRACE_TRACEME</span><span class=p>)</span> <span class=err>=</span> <span class=o>-</span><span class=mi>1</span> <span class=nv>EPERM</span> <span class=p>(</span><span class=nv>Operation</span> <span class=nv>not</span> <span class=nv>permitted</span><span class=p>)</span></code></pre></div><p>Come è possibile notare il valore di ritorno della syscall (posizionato nel registro eax), è -1, ovvero la syscall non è andata a buon fine.<br>Per risolvere questo primo ostacolo dopo aver aperto il programma con IDA ho sostituito il jnz qualche riga dopo con un
+jmp, il programma può ora essere debuggato.</p><p>L&rsquo;eseguibile dopo aver mostrato una scritta resta in attesa di un input da parte dell&rsquo;utente:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>#########################################################
 ### Welcome to the &#34;wysiNwyg&#34; challenge!
 ###     Your task is to find out the password to be able
 ###     to decrypt the password-protected zip and read
 ###     the secret flag. Good Luck!!
 #########################################################
 
-Password:</code></pre></div>
-<p>L&rsquo;input fornito verrà allocato nella posizione 0x8049d60 (si suppone l&rsquo;ASLR disattivato).<br />
-Il programma reversato tramite radare2 è così costituito (psudocodice)(l&rsquo;ho molto compattato):</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span><span class="o">*</span> <span class="n">INPUT</span><span class="p">;</span>
-<span class="n">memset</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">35</span><span class="p">);</span>
-<span class="n">fgets</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="n">stdin</span><span class="p">);</span>
-<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">INPUT</span><span class="p">)</span> <span class="n">exit</span><span class="p">();</span>
-<span class="k">if</span><span class="p">(</span><span class="n">INPUT</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">INPUT</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
-    <span class="n">INPUT</span><span class="p">[</span><span class="n">strlen</span><span class="p">(</span><span class="n">INPUT</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+Password:</code></pre></div><p>L&rsquo;input fornito verrà allocato nella posizione 0x8049d60 (si suppone l&rsquo;ASLR disattivato).<br>Il programma reversato tramite radare2 è così costituito (psudocodice)(l&rsquo;ho molto compattato):</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=kt>char</span><span class=o>*</span> <span class=n>INPUT</span><span class=p>;</span>
+<span class=n>memset</span><span class=p>(</span><span class=n>INPUT</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=mi>35</span><span class=p>);</span>
+<span class=n>fgets</span><span class=p>(</span><span class=n>INPUT</span><span class=p>,</span><span class=mi>35</span><span class=p>,</span><span class=n>stdin</span><span class=p>);</span>
+<span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>INPUT</span><span class=p>)</span> <span class=n>exit</span><span class=p>();</span>
+<span class=k>if</span><span class=p>(</span><span class=n>INPUT</span><span class=p>[</span><span class=n>strlen</span><span class=p>(</span><span class=n>INPUT</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>])</span> <span class=o>==</span> <span class=sc>&#39;\n&#39;</span><span class=p>;</span>
+    <span class=n>INPUT</span><span class=p>[</span><span class=n>strlen</span><span class=p>(</span><span class=n>INPUT</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=sc>&#39;\0&#39;</span><span class=p>;</span>
 
-<span class="k">if</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">INPUT</span><span class="p">,</span><span class="s">&#34;s3cR3t_P4ssw0rd&#34;</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;This is not the solution you are looking for :)&#34;</span><span class="p">);</span>
-    <span class="n">exit</span><span class="p">();</span>
+<span class=k>if</span><span class=p>(</span><span class=n>strcmp</span><span class=p>(</span><span class=n>INPUT</span><span class=p>,</span><span class=s>&#34;s3cR3t_P4ssw0rd&#34;</span><span class=p>)</span><span class=o>==</span><span class=mi>0</span><span class=p>){</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;This is not the solution you are looking for :)&#34;</span><span class=p>);</span>
+    <span class=n>exit</span><span class=p>();</span>
 
-<span class="k">if</span><span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">INPUT</span><span class="p">)</span><span class="o">&lt;=</span><span class="mi">34</span><span class="p">){</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Try again:&#34;</span><span class="p">);</span>
-    <span class="n">exit</span><span class="p">();</span>
-<span class="p">}</span>
+<span class=k>if</span><span class=p>(</span><span class=n>strlen</span><span class=p>(</span><span class=n>INPUT</span><span class=p>)</span><span class=o>&lt;=</span><span class=mi>34</span><span class=p>){</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Try again:&#34;</span><span class=p>);</span>
+    <span class=n>exit</span><span class=p>();</span>
+<span class=p>}</span>
 
-<span class="n">exit</span><span class="p">();</span></code></pre></div>
-<p>Il programma non fa assolutamente nulla di utile, il nome dell&rsquo;eseguibile è però un
-suggerimento: What You See Its NOT What You Get, ovvero: Ciò che vedi NON è ciò che ottieni.<br />
-Analizzando le funzioni presenti nel codice (comando afl su radare) si nota che
-sono presenti altre entry possibili per il programma, la entry4 è interessante.<br />
-Essa rappresenta la entry più pesante di tutto il programma, essa è letteralmente disseminata di controlli inutili sulla lunghezza dell&rsquo;input o sulla posizione di eventuali caratteri a seguito di manipolazioni più o meno complesse (quali xor, shift ed altro), tutte queste parti (benchè rappresentino la quasi totalità del codice) sono state saltate tramite il comado <code>dr rip=&lt;indirizzo&gt;</code>
-ovvero ho forzato l&rsquo;istruction pointer a saltare dove mi pareva, in pratica fuori dai controlli.<br />
-Tolte tali parti del programma all&rsquo;inizio della entry possiamo notare una serie di variabili locali esse rappresentano la seguente sequenza:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">]gl]wlu]lAaj@lAl&#39;l@jp\]TARGF_RGZ\]@j\FYF@GD\]C</code></pre></div>
-<p>Sono stati omessi alcuni valori non visualizzabili a schermo.<br />
-Pare essere un stringa cifrata, la stringa è di 46byte, ma dai controlli effettuati nel codice la password è composta da 22 caratteri, c&rsquo;è dunque qualcosa in più.<br />
-Il metodo con cui tale stringa viene cifrata è hardcodato all&rsquo;interno dell&rsquo;eseguibile, ed esso è un semplice xor tra l&rsquo;input e il valore <strong>0x33</strong>.<br />
-La soluzione è quindi:</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
+<span class=n>exit</span><span class=p>();</span></code></pre></div><p>Il programma non fa assolutamente nulla di utile, il nome dell&rsquo;eseguibile è però un
+suggerimento: What You See Its NOT What You Get, ovvero: Ciò che vedi NON è ciò che ottieni.<br>Analizzando le funzioni presenti nel codice (comando afl su radare) si nota che
+sono presenti altre entry possibili per il programma, la entry4 è interessante.<br>Essa rappresenta la entry più pesante di tutto il programma, essa è letteralmente disseminata di controlli inutili sulla lunghezza dell&rsquo;input o sulla posizione di eventuali caratteri a seguito di manipolazioni più o meno complesse (quali xor, shift ed altro), tutte queste parti (benchè rappresentino la quasi totalità del codice) sono state saltate tramite il comado <code>dr rip=&lt;indirizzo&gt;</code>
+ovvero ho forzato l&rsquo;istruction pointer a saltare dove mi pareva, in pratica fuori dai controlli.<br>Tolte tali parti del programma all&rsquo;inizio della entry possiamo notare una serie di variabili locali esse rappresentano la seguente sequenza:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>]gl]wlu]lAaj@lAl&#39;l@jp\]TARGF_RGZ\]@j\FYF@GD\]C</code></pre></div><p>Sono stati omessi alcuni valori non visualizzabili a schermo.<br>Pare essere un stringa cifrata, la stringa è di 46byte, ma dai controlli effettuati nel codice la password è composta da 22 caratteri, c&rsquo;è dunque qualcosa in più.<br>Il metodo con cui tale stringa viene cifrata è hardcodato all&rsquo;interno dell&rsquo;eseguibile, ed esso è un semplice xor tra l&rsquo;input e il valore <strong>0x33</strong>.<br>La soluzione è quindi:</p><div class=highlight><pre class=chroma><code class=language-python data-lang=python><span class=kn>from</span> <span class=nn>zipfile</span> <span class=kn>import</span> <span class=n>ZipFile</span>
 
-<span class="n">ciphed</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x2</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x2</span><span class="p">,</span><span class="mh">0x67</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x7</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x77</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x75</span><span class="p">,</span><span class="mh">0x2</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x2</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x7</span><span class="p">,</span>
-          <span class="mh">0x41</span><span class="p">,</span><span class="mh">0x61</span><span class="p">,</span><span class="mh">0x7</span><span class="p">,</span><span class="mh">0x6a</span><span class="p">,</span><span class="mh">0x40</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x7</span><span class="p">,</span><span class="mh">0x41</span><span class="p">,</span><span class="mh">0x0</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x60</span><span class="p">,</span><span class="mh">0x3</span><span class="p">,</span><span class="mh">0x6c</span><span class="p">,</span><span class="mh">0x0</span><span class="p">,</span><span class="mh">0x7</span><span class="p">,</span>
-          <span class="mh">0x40</span><span class="p">,</span><span class="mh">0x6a</span><span class="p">,</span><span class="mh">0x12</span><span class="p">,</span><span class="mh">0x12</span><span class="p">,</span><span class="mh">0x0</span><span class="p">,</span><span class="mh">0x70</span><span class="p">,</span><span class="mh">0x5c</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x54</span><span class="p">,</span><span class="mh">0x41</span><span class="p">,</span><span class="mh">0x52</span><span class="p">,</span><span class="mh">0x47</span><span class="p">,</span><span class="mh">0x46</span><span class="p">,</span><span class="mh">0x5f</span><span class="p">,</span>
-          <span class="mh">0x52</span><span class="p">,</span><span class="mh">0x47</span><span class="p">,</span><span class="mh">0x5a</span><span class="p">,</span><span class="mh">0x5c</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x40</span><span class="p">,</span><span class="mh">0x12</span><span class="p">,</span><span class="mh">0x13</span><span class="p">,</span><span class="mh">0x6a</span><span class="p">,</span><span class="mh">0x5c</span><span class="p">,</span><span class="mh">0x46</span><span class="p">,</span><span class="mh">0x13</span><span class="p">,</span><span class="mh">0x59</span><span class="p">,</span><span class="mh">0x46</span><span class="p">,</span>
-          <span class="mh">0x40</span><span class="p">,</span><span class="mh">0x47</span><span class="p">,</span><span class="mh">0x13</span><span class="p">,</span><span class="mh">0x44</span><span class="p">,</span><span class="mh">0x5c</span><span class="p">,</span><span class="mh">0x5d</span><span class="p">,</span><span class="mh">0x13</span><span class="p">,</span><span class="mh">0x9</span><span class="p">,</span><span class="mh">0x43</span><span class="p">,</span><span class="mh">0x0</span><span class="p">]</span>
+<span class=n>ciphed</span> <span class=o>=</span> <span class=p>[</span><span class=mh>0x2</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x2</span><span class=p>,</span><span class=mh>0x67</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x7</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x77</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x75</span><span class=p>,</span><span class=mh>0x2</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x2</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x7</span><span class=p>,</span>
+          <span class=mh>0x41</span><span class=p>,</span><span class=mh>0x61</span><span class=p>,</span><span class=mh>0x7</span><span class=p>,</span><span class=mh>0x6a</span><span class=p>,</span><span class=mh>0x40</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x7</span><span class=p>,</span><span class=mh>0x41</span><span class=p>,</span><span class=mh>0x0</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x60</span><span class=p>,</span><span class=mh>0x3</span><span class=p>,</span><span class=mh>0x6c</span><span class=p>,</span><span class=mh>0x0</span><span class=p>,</span><span class=mh>0x7</span><span class=p>,</span>
+          <span class=mh>0x40</span><span class=p>,</span><span class=mh>0x6a</span><span class=p>,</span><span class=mh>0x12</span><span class=p>,</span><span class=mh>0x12</span><span class=p>,</span><span class=mh>0x0</span><span class=p>,</span><span class=mh>0x70</span><span class=p>,</span><span class=mh>0x5c</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x54</span><span class=p>,</span><span class=mh>0x41</span><span class=p>,</span><span class=mh>0x52</span><span class=p>,</span><span class=mh>0x47</span><span class=p>,</span><span class=mh>0x46</span><span class=p>,</span><span class=mh>0x5f</span><span class=p>,</span>
+          <span class=mh>0x52</span><span class=p>,</span><span class=mh>0x47</span><span class=p>,</span><span class=mh>0x5a</span><span class=p>,</span><span class=mh>0x5c</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x40</span><span class=p>,</span><span class=mh>0x12</span><span class=p>,</span><span class=mh>0x13</span><span class=p>,</span><span class=mh>0x6a</span><span class=p>,</span><span class=mh>0x5c</span><span class=p>,</span><span class=mh>0x46</span><span class=p>,</span><span class=mh>0x13</span><span class=p>,</span><span class=mh>0x59</span><span class=p>,</span><span class=mh>0x46</span><span class=p>,</span>
+          <span class=mh>0x40</span><span class=p>,</span><span class=mh>0x47</span><span class=p>,</span><span class=mh>0x13</span><span class=p>,</span><span class=mh>0x44</span><span class=p>,</span><span class=mh>0x5c</span><span class=p>,</span><span class=mh>0x5d</span><span class=p>,</span><span class=mh>0x13</span><span class=p>,</span><span class=mh>0x9</span><span class=p>,</span><span class=mh>0x43</span><span class=p>,</span><span class=mh>0x0</span><span class=p>]</span>
 
-<span class="n">key</span> <span class="o">=</span> <span class="mh">0x33</span>
+<span class=n>key</span> <span class=o>=</span> <span class=mh>0x33</span>
 
-<span class="n">res</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+<span class=n>res</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
 
-<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ciphed</span><span class="p">:</span>
-    <span class="n">res</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">c</span> <span class="o">^</span> <span class="n">key</span><span class="p">)</span>
+<span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>ciphed</span><span class=p>:</span>
+    <span class=n>res</span> <span class=o>+=</span> <span class=nb>chr</span><span class=p>(</span><span class=n>c</span> <span class=o>^</span> <span class=n>key</span><span class=p>)</span>
 
-<span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="p">[:</span><span class="mh">0x22</span><span class="p">]</span>
-<span class="k">print</span><span class="p">(</span><span class="s2">&#34;password: </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">res</span><span class="p">)</span>
+<span class=n>res</span> <span class=o>=</span> <span class=n>res</span><span class=p>[:</span><span class=mh>0x22</span><span class=p>]</span>
+<span class=k>print</span><span class=p>(</span><span class=s2>&#34;password: </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>res</span><span class=p>)</span>
 
-<span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="s1">&#39;flag.zip&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
-    <span class="n">zf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">pwd</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ASCII&#39;</span><span class="p">))</span>
+<span class=k>with</span> <span class=n>ZipFile</span><span class=p>(</span><span class=s1>&#39;flag.zip&#39;</span><span class=p>)</span> <span class=k>as</span> <span class=n>zf</span><span class=p>:</span>
+    <span class=n>zf</span><span class=o>.</span><span class=n>extractall</span><span class=p>(</span><span class=n>pwd</span><span class=o>=</span><span class=n>res</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s1>&#39;ASCII&#39;</span><span class=p>))</span>
 
-<span class="k">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;flag.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></code></pre></div>
-<p>L&rsquo;ouptut è il seguente:</p>
-<div class="highlight"><pre class="chroma"><code class="language-text" data-lang="text">password: 1n1T_4nD_F1n1_4rR4Ys_4r3_S0_34sY!!</code></pre></div>
-<p>Aperto l&rsquo;archivio tramite la password appena fornita otteniamo la flag:</p>
-<div class="highlight"><pre class="chroma"><code class="language-txt" data-lang="txt">{FLG:4#hfoU98Y5(ButYou&#39;llNeverKnowIt)}</code></pre></div>
-  </section>
-</article>
-
-</main>
-
-</div>
-
-<footer>
-  <div class="container">
-    <span class="copyright">&copy; 2019 R13 - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
-  </div>
-</footer>
-
-</body>
-</html>
-
+<span class=k>print</span><span class=p>(</span><span class=nb>open</span><span class=p>(</span><span class=s1>&#39;flag.txt&#39;</span><span class=p>,</span> <span class=s1>&#39;r&#39;</span><span class=p>)</span><span class=o>.</span><span class=n>read</span><span class=p>())</span></code></pre></div><p>L&rsquo;ouptut è il seguente:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>password: 1n1T_4nD_F1n1_4rR4Ys_4r3_S0_34sY!!</code></pre></div><p>Aperto l&rsquo;archivio tramite la password appena fornita otteniamo la flag:</p><div class=highlight><pre class=chroma><code class=language-txt data-lang=txt>{FLG:4#hfoU98Y5(ButYou&#39;llNeverKnowIt)}</code></pre></div></section></article></main></div><footer><div class=container><span class=copyright>&copy; 2019 R13 - <a rel=license href=http://creativecommons.org/licenses/by/4.0/>CC BY 4.0</a></span></div></footer></body></html>

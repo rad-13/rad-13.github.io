@@ -1,74 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Posts on R13</title>
-    <link>https://rad-13.github.io/posts/</link>
-    <description>Recent content in Posts on R13</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>it-it</language>
-    <lastBuildDate>Fri, 05 Apr 2019 20:26:00 +0100</lastBuildDate>
-    
-	<atom:link href="https://rad-13.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    <item>
-      <title>INS&#39;hAck 2019 - useless-chall</title>
-      <link>https://rad-13.github.io/posts/useless-chall/</link>
-      <pubDate>Fri, 05 Apr 2019 20:26:00 +0100</pubDate>
-      
-      <guid>https://rad-13.github.io/posts/useless-chall/</guid>
-      <description>useless-chall è la penultima sfida della sezione reverse engineering della INS&amp;rsquo;hAck 2019 CTF. Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le varie funzioni di hash piuttosto che capirle. Il programma è stato reversato tramite il tool Ghidra.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on R13</title><link>https://rad-13.github.io/posts/</link><description>Recent content in Posts on R13</description><generator>Hugo -- gohugo.io</generator><language>it-it</language><lastBuildDate>Fri, 05 Apr 2019 20:26:00 +0100</lastBuildDate><atom:link href="https://rad-13.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>INS&#39;hAck 2019 - useless-chall</title><link>https://rad-13.github.io/posts/useless-chall/</link><pubDate>Fri, 05 Apr 2019 20:26:00 +0100</pubDate><guid>https://rad-13.github.io/posts/useless-chall/</guid><description>useless-chall è la penultima sfida della sezione reverse engineering della INS&amp;rsquo;hAck 2019 CTF. Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le varie funzioni di hash piuttosto che capirle. Il programma è stato reversato tramite il tool Ghidra.
 Il binario utilizzato è il seguente: Download
 La descrizione della sfida riporta:
- One of my friend sent me this binary and asked me if it was secure enough to act as the auth page of his highly secure password manager.</description>
-    </item>
-    
-    <item>
-      <title>Aeroctf CTF - Navigation System</title>
-      <link>https://rad-13.github.io/posts/navigation-system/</link>
-      <pubDate>Sat, 09 Mar 2019 18:54:01 +0100</pubDate>
-      
-      <guid>https://rad-13.github.io/posts/navigation-system/</guid>
-      <description>Navigation System è la prima sfida della sezione pwning della Aero CTF.
+One of my friend sent me this binary and asked me if it was secure enough to act as the auth page of his highly secure password manager.</description></item><item><title>Aeroctf CTF - Navigation System</title><link>https://rad-13.github.io/posts/navigation-system/</link><pubDate>Sat, 09 Mar 2019 18:54:01 +0100</pubDate><guid>https://rad-13.github.io/posts/navigation-system/</guid><description>Navigation System è la prima sfida della sezione pwning della Aero CTF.
 L&amp;rsquo;idea di questo writeup non è prettamente quello di spiegare nel dettaglio le falle presenti nella sfida, ma piuttosto valutare come il software Ghidra performa in un contesto come le CTF, e confrontarlo al classico radare2.
-Per una spiegazione più approfondita di come ho sfruttato le vulnerabilità del binario al fine di ottenere la flag si può fare riferimento alla seguente sfida, abbastanza analoga.</description>
-    </item>
-    
-    <item>
-      <title>FireShell CTF - casino</title>
-      <link>https://rad-13.github.io/posts/casino/</link>
-      <pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate>
-      
-      <guid>https://rad-13.github.io/posts/casino/</guid>
-      <description>casino è la seconda sfida proposta nella sezione pwning della FireShell CTF. Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso d&amp;rsquo;inserirla tra i post.
+Per una spiegazione più approfondita di come ho sfruttato le vulnerabilità del binario al fine di ottenere la flag si può fare riferimento alla seguente sfida, abbastanza analoga.</description></item><item><title>FireShell CTF - casino</title><link>https://rad-13.github.io/posts/casino/</link><pubDate>Mon, 28 Jan 2019 19:56:33 +0100</pubDate><guid>https://rad-13.github.io/posts/casino/</guid><description>casino è la seconda sfida proposta nella sezione pwning della FireShell CTF. Non è una sfida molto complessa, ma per via della sua originalità e delle tecniche richieste diverse dai soliti buffer overflow ho deciso d&amp;rsquo;inserirla tra i post.
 La sfida presenta un solo eseguibile, un ELF64. Download
 Analizzando il programma con rabin2 possiamo dare un&amp;rsquo;occhiata alle caratteristiche principali dell&amp;rsquo;eseguibile.
-arch x86 baddr 0x400000 binsz 11297 bintype elf bits 64 canary true sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
-    </item>
-    
-    <item>
-      <title>CSAW 2018 - get_it</title>
-      <link>https://rad-13.github.io/posts/get_it/</link>
-      <pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate>
-      
-      <guid>https://rad-13.github.io/posts/get_it/</guid>
-      <description>get_it è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
+arch x86 baddr 0x400000 binsz 11297 bintype elf bits 64 canary true sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description></item><item><title>CSAW 2018 - get_it</title><link>https://rad-13.github.io/posts/get_it/</link><pubDate>Tue, 27 Nov 2018 20:18:33 +0100</pubDate><guid>https://rad-13.github.io/posts/get_it/</guid><description>get_it è la prima sfida offerta nella categoria pwning delle per la CSAW 2018 (qualificazioni).
 Il binario fornito è un ELF64. Download
 Appena scaricato possiamo analizzarlo utilizzano rabin2, un tool molto utile al fine di ottenere informazioni su un binario. Passando il parametro -I (binary info) otteniamo il seguente output:
-arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description>
-    </item>
-    
-    <item>
-      <title>Reply challenge - wysiNwyg</title>
-      <link>https://rad-13.github.io/posts/wysinwyg/</link>
-      <pubDate>Sun, 25 Nov 2018 20:18:33 +0100</pubDate>
-      
-      <guid>https://rad-13.github.io/posts/wysinwyg/</guid>
-      <description>What You See Is Not What You Get è la sfida da 400 punti nella sezione binary della CTF Reply.
+arch x86 baddr 0x400000 binsz 6754 bintype elf bits 64 canary false sanitiz false class ELF64 crypto false endian little havecode true intrp /lib64/ld-linux-x86-64.</description></item><item><title>Reply challenge - wysiNwyg</title><link>https://rad-13.github.io/posts/wysinwyg/</link><pubDate>Sun, 25 Nov 2018 20:18:33 +0100</pubDate><guid>https://rad-13.github.io/posts/wysinwyg/</guid><description>What You See Is Not What You Get è la sfida da 400 punti nella sezione binary della CTF Reply.
 Essa rappresenta la sfida più complessa delle prove date in preparazione alla challenge vera e propria.
 Ci viene fornito un file zip contene un archivio protetto da password ed un eseguibile ELF32. Download
-Se proviamo a debuggarlo il programma risponde: No debugger please! L&amp;rsquo;eseguibile controlla che l&amp;rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema qui meglio descritta.</description>
-    </item>
-    
-  </channel>
-</rss>
+Se proviamo a debuggarlo il programma risponde: No debugger please! L&amp;rsquo;eseguibile controlla che l&amp;rsquo;esecuzione non sia fatta attraverso un debugger, in pratica cerca di effettuare una ptrace, un chiamata di sistema qui meglio descritta.</description></item></channel></rss>
