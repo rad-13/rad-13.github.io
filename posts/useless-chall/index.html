@@ -70,7 +70,7 @@
         textColor: '#f2f0ec'
       })</script>
     <p><strong>useless-chall</strong> è la penultima sfida della sezione reverse engineering della <a href="https://ctftime.org/event/763">INS&rsquo;hAck 2019 CTF</a>.
-Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le vare funzioni di hash piuttosto che capirle.
+Benchè la sfida sia riportata nella sezione hash la maggior difficoltà trovata è stata nel bypassare le varie funzioni di hash piuttosto che capirle.
 Il programma è stato reversato tramite il tool <a href="https://ghidra-sre.org/">Ghidra</a>.</p>
 
 <p>Il binario utilizzato è il seguente: <a href="/files/hash" download>Download</a></p>
@@ -229,7 +229,7 @@ Nella pratica la stringa <strong>WWAW</strong> è <em>&ldquo;What a wonderful wo
   <span class="n">puts</span><span class="p">(</span><span class="s">&#34;Love this chall ?&#34;</span><span class="p">);</span>
   <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span></code></pre></div>
-<p>È possibile entrare in tale condizione dato il segno del valore di hash, in pratica sta controllando in modo abbastanza malato che il numero non sia dispari: $h^2 + 1 = \frac{(h^2 + 1) * 7}{7}$, ciò è vero a meno di arrotondamenti (<em>che potremmo avere dato il casting</em>).</p>
+<p>È possibile entrare in tale condizione dato il segno del valore di hash, in pratica sta controllando in modo abbastanza offuscato che il numero non sia dispari: $h^2 + 1 = \frac{(h^2 + 1) * 7}{7}$, ciò è vero a meno di arrotondamenti (<em>che potremmo avere dato il casting</em>).</p>
 
 <p>Il problema principale della sfida sorge invece nella condizione imposta da <strong>hashFun2</strong>, ovvero:</p>
 <div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">hash2_t</span> <span class="o">=</span> <span class="n">hashFun2</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
