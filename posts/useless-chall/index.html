@@ -149,42 +149,42 @@ hash = \sum_{i=0}^{41}n_i \cdot 2^{i \% 31}
 \end{align}
 $$
 Tale funzione di hash non è sicura, risulta possibile ottenere una collisione verso il valore richiesto.</p><p>Per farlo si analizza la formula appena data.</p><p>La distribuzione dell&rsquo;esponente ci mostra che esso si incrementa man mano che $i$ aumenta, in pratica ciò implica che il contributo di $n_i$ aumenta man mano che la $i$ si avvicina a 31, per poi ricominciare da 0 man mano si allontana.</p><p>In pratica ciò ci sta dicendo che se vogliamo forzare dei grossi cambiamenti nell&rsquo;output dovremo farlo con le prime cifre a sinistra di 31. Inoltre se vogliamo cambiare un singolo byte nell&rsquo;output basterà aumentare o diminuire il 31-esimo byte nell&rsquo;input, poichè $n_i \cdot 2^{31 \% 31} = n_i \cdot 2^{0} = 1$.
-L&rsquo;idea è quindi quella di lasciare perdere le ultime $(41-31) = 10$ cifre e lavorare su quelle più significative.</p><p>L&rsquo;algoritmo parte inizializzando un vettore di &lsquo;A&rsquo; (41 in intero).</p><p>Fatto ciò si sceglie la 31-esima cifra e si incrementa il valore fino a che l&rsquo;hash ottenuto dalla stringa in esame non supera il valore di <strong>0x3c5ae529</strong>, a questo punto si decrementa la cifra attuale e ci si sposta di una lettera a sinistra, così che al prossimo ciclo si potrà raffinare la sequenza verso l&rsquo;hash voluto.</p><p>L&rsquo;algoritmo tende quindi alla soluzione ottima, non è detto che la raggiunga (<em>dipende dalle condizioni iniziali</em>), se si parte dal carattere &lsquo;A&rsquo; come in esempio si ottiene la flag.</p><p>Il codice completo è il seguente:</p><div class=highlight><pre class=chroma><code class=language-c data-lang=c><span class=n>from</span> <span class=n>numpy</span> <span class=n>import</span> <span class=n>int32</span>
+L&rsquo;idea è quindi quella di lasciare perdere le ultime $(41-31) = 10$ cifre e lavorare su quelle più significative.</p><p>L&rsquo;algoritmo parte inizializzando un vettore di &lsquo;A&rsquo; (41 in intero).</p><p>Fatto ciò si sceglie la 31-esima cifra e si incrementa il valore fino a che l&rsquo;hash ottenuto dalla stringa in esame non supera il valore di <strong>0x3c5ae529</strong>, a questo punto si decrementa la cifra attuale e ci si sposta di una lettera a sinistra, così che al prossimo ciclo si potrà raffinare la sequenza verso l&rsquo;hash voluto.</p><p>L&rsquo;algoritmo tende quindi alla soluzione ottima, non è detto che la raggiunga (<em>dipende dalle condizioni iniziali</em>), se si parte dal carattere &lsquo;A&rsquo; come in esempio si ottiene la flag.</p><p>Il codice completo è il seguente:</p><div class=highlight><pre class=chroma><code class=language-python2 data-lang=python2>from numpy import int32
 
-<span class=n>def</span> <span class=n>toStr</span><span class=p>(</span><span class=n>l</span><span class=p>)</span><span class=o>:</span>
-    <span class=k>return</span> <span class=err>&#39;&#39;</span><span class=p>.</span><span class=n>join</span><span class=p>([</span><span class=n>chr</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=k>for</span> <span class=n>x</span> <span class=n>in</span> <span class=n>l</span><span class=p>])</span>
+def toStr(l):
+    return &#39;&#39;.join([chr(x) for x in l])
 
-<span class=n>def</span> <span class=n>hashFun2</span><span class=p>(</span><span class=n>str</span><span class=p>)</span><span class=o>:</span>
-    <span class=n>sLen</span> <span class=o>=</span> <span class=n>len</span><span class=p>(</span><span class=n>str</span><span class=p>)</span>
+def hashFun2(str):
+    sLen = len(str)
 
-    <span class=n>sum</span> <span class=o>=</span> <span class=mi>0</span>
-    <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span>
-    <span class=k>while</span><span class=p>(</span><span class=n>i</span><span class=o>&lt;</span><span class=kt>int</span><span class=p>(</span><span class=n>sLen</span><span class=p>))</span><span class=o>:</span>
-        <span class=n>sum</span> <span class=o>=</span> <span class=n>int32</span><span class=p>(</span><span class=n>sum</span> <span class=o>+</span> <span class=p>((</span><span class=n>ord</span><span class=p>(</span><span class=n>str</span><span class=p>[</span><span class=n>i</span><span class=p>]))</span> <span class=o>&lt;&lt;</span> <span class=p>(</span><span class=n>i</span> <span class=o>&amp;</span> <span class=mh>0x1f</span><span class=p>)))</span>
+    sum = 0
+    i = 0
+    while(i&lt;int(sLen)):
+        sum = int32(sum + ((ord(str[i])) &lt;&lt; (i &amp; 0x1f)))
 
-        <span class=n>i</span> <span class=o>=</span> <span class=n>i</span> <span class=o>+</span> <span class=mi>1</span>
+        i = i + 1
 
-    <span class=k>return</span> <span class=n>int32</span><span class=p>(</span><span class=n>sum</span><span class=p>)</span>
+    return int32(sum)
 
-<span class=n>hash2</span> <span class=o>=</span> <span class=mh>0x3c5ae529</span>
-<span class=n>blist</span> <span class=o>=</span> <span class=p>[</span><span class=n>ord</span><span class=p>(</span><span class=sc>&#39;A&#39;</span><span class=p>)]</span> <span class=o>*</span> <span class=mi>41</span>
+hash2 = 0x3c5ae529
+blist = [ord(&#39;A&#39;)] * 41
 
-<span class=k>for</span> <span class=n>i</span> <span class=n>in</span> <span class=n>range</span><span class=p>(</span><span class=mi>31</span><span class=p>,</span><span class=mi>0</span><span class=p>,</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>:</span>
-    <span class=k>for</span> <span class=n>j</span> <span class=n>in</span> <span class=n>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>126</span><span class=o>-</span><span class=n>ord</span><span class=p>(</span><span class=sc>&#39;A&#39;</span><span class=p>))</span><span class=o>:</span>
-        <span class=n>h2</span> <span class=o>=</span> <span class=n>hashFun2</span><span class=p>(</span><span class=n>toStr</span><span class=p>(</span><span class=n>blist</span><span class=p>))</span>
+for i in range(31,0,-1):
+    for j in range(1,126-ord(&#39;A&#39;)):
+        h2 = hashFun2(toStr(blist))
 
-        <span class=k>if</span><span class=p>(</span><span class=n>h2</span> <span class=o>&lt;</span> <span class=n>hash2</span><span class=p>)</span><span class=o>:</span>
-            <span class=n>blist</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>blist</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span>
-        <span class=k>else</span><span class=o>:</span>
-            <span class=n>blist</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>blist</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>-</span> <span class=mi>1</span>
-            <span class=k>break</span>
+        if(h2 &lt; hash2):
+            blist[i] = blist[i] + 1
+        else:
+            blist[i] = blist[i] - 1
+            break
 
-<span class=n>blist</span><span class=p>[</span><span class=mi>32</span><span class=p>]</span> <span class=o>=</span> <span class=n>blist</span><span class=p>[</span><span class=mi>32</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span>
-<span class=n>h2</span> <span class=o>=</span> <span class=n>hashFun2</span><span class=p>(</span><span class=n>toStr</span><span class=p>(</span><span class=n>blist</span><span class=p>))</span>
+blist[32] = blist[32] + 1
+h2 = hashFun2(toStr(blist))
 
-<span class=n>print</span><span class=p>(</span><span class=n>hex</span><span class=p>(</span><span class=n>h2</span><span class=p>))</span>
-<span class=n>print</span><span class=p>(</span><span class=n>blist</span><span class=p>)</span>
-<span class=n>print</span><span class=p>(</span><span class=n>toStr</span><span class=p>(</span><span class=n>blist</span><span class=p>))</span></code></pre></div><p>Che da come output:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>➜ python2.7 code.py            
+print hex(h2)
+print blist
+print toStr(blist)</code></pre></div><p>Che da come output:</p><div class=highlight><pre class=chroma><code class=language-text data-lang=text>➜ python2.7 code.py            
 0x3c5ae529
 [65, 66, 65, 66, 65, 66, 65, 66, 66, 66, 65, 65, 65, 66, 66, 65, 65, 66, 65, 66, 66, 65, 66, 65, 65, 65, 66, 66, 66, 66, 65, 125, 66, 65, 65, 65, 65, 65, 65, 65, 65]
 ABABABABBBAAABBAABABBABAAABBBBA}BAAAAAAAA
