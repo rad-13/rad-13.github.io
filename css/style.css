@@ -327,7 +327,7 @@ article.single pre {
   margin-bottom: 1rem;
   overflow-x: scroll;
   border-radius: 3px;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 article.single p code {
@@ -348,14 +348,14 @@ article.single figure, article.single div.highlight {
   background-color: #393939;
 }
 
-/* @media (max-width: 52em) {
+@media (max-width: 52em) {
   article.single figure, article.single div.highlight {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
-    border-radius: 3px;
+    border-radius: 1em;
   }
-} */
+}
 
 article.single figure img {
   max-width: 100%;
